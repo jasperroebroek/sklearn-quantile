@@ -1,0 +1,11 @@
+matplotlib
+numpy
+sklearn
+scikit-learn
+pytest
+setuptools
+cython
+sphinx
+sphinx_rtd_theme
+numpydoc
+jupyter
