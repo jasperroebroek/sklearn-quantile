@@ -5,3 +5,4 @@ sklearn_quantile.egg-info
 .pytest_cache
 build
 .idea
+*__pycache__
