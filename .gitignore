@@ -1,0 +1,7 @@
+*.so
+*.c
+
+sklearn_quantile.egg-info
+.pytest_cache
+build
+.idea

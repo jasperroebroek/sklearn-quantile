@@ -1,0 +1,3 @@
+from sklearn_quantile.ensemble import RandomForestQuantileRegressor, ExtraTreesQuantileRegressor, \
+    RandomForestMaximumRegressor
+from sklearn_quantile.neighbors import KNeighborsQuantileRegressor

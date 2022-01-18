@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sklearn_quantile.KNeighborsQuantileRegressor &mdash; sklearn_quantile 0.0.1 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="sklearn_quantile.RandomForestMaximumRegressor" href="sklearn_quantile.RandomForestMaximumRegressor.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> sklearn_quantile
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Methods</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../methods.html">Quantile Regression Forest</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../methods.html#quantile-knn">Quantile KNN</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../whats_new.html">What’s new</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../api.html">API reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../api.html#models">Models</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="sklearn_quantile.RandomForestQuantileRegressor.html">sklearn_quantile.RandomForestQuantileRegressor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sklearn_quantile.ExtraTreesQuantileRegressor.html">sklearn_quantile.ExtraTreesQuantileRegressor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sklearn_quantile.RandomForestMaximumRegressor.html">sklearn_quantile.RandomForestMaximumRegressor</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">sklearn_quantile.KNeighborsQuantileRegressor</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">sklearn_quantile</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../api.html">API reference</a> &raquo;</li>
+      <li>sklearn_quantile.KNeighborsQuantileRegressor</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/generated/sklearn_quantile.KNeighborsQuantileRegressor.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="sklearn-quantile-kneighborsquantileregressor">
+<h1>sklearn_quantile.KNeighborsQuantileRegressor<a class="headerlink" href="#sklearn-quantile-kneighborsquantileregressor" title="Permalink to this headline"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="sklearn_quantile.KNeighborsQuantileRegressor">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sklearn_quantile.</span></span><span class="sig-name descname"><span class="pre">KNeighborsQuantileRegressor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">quantiles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sklearn_quantile.KNeighborsQuantileRegressor" title="Permalink to this definition"></a></dt>
+<dd><p>Quantile regression based on k-nearest neighbors.</p>
+<p>The target is predicted by local interpolation of the targets
+associated of the nearest neighbors in the training set.</p>
+<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/neighbors.html#regression" title="(in scikit-learn v1.0)"><span class="xref std std-ref">User Guide</span></a>.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">New in version 0.9.</span></p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_neighbors</strong> (<em>int</em><em>, </em><em>default=5</em>) – Number of neighbors to use by default for <code class="xref py py-meth docutils literal notranslate"><span class="pre">kneighbors()</span></code> queries.</p></li>
+<li><p><strong>weights</strong> (<em>{'uniform'</em><em>, </em><em>'distance'}</em><em> or </em><em>callable</em><em>, </em><em>default='uniform'</em>) – <p>Weight function used in prediction.  Possible values:</p>
+<ul>
+<li><p>’uniform’ : uniform weights.  All points in each neighborhood
+are weighted equally.</p></li>
+<li><p>’distance’ : weight points by the inverse of their distance.
+in this case, closer neighbors of a query point will have a
+greater influence than neighbors which are further away.</p></li>
+<li><p>[callable] : a user-defined function which accepts an
+array of distances, and returns an array of the same shape
+containing the weights.</p></li>
+</ul>
+<p>Uniform weights are used by default.</p>
+</p></li>
+<li><p><strong>algorithm</strong> (<em>{'auto'</em><em>, </em><em>'ball_tree'</em><em>, </em><em>'kd_tree'</em><em>, </em><em>'brute'}</em><em>, </em><em>default='auto'</em>) – <p>Algorithm used to compute the nearest neighbors:</p>
+<ul>
+<li><p>’ball_tree’ will use <code class="xref py py-class docutils literal notranslate"><span class="pre">BallTree</span></code></p></li>
+<li><p>’kd_tree’ will use <code class="xref py py-class docutils literal notranslate"><span class="pre">KDTree</span></code></p></li>
+<li><p>’brute’ will use a brute-force search.</p></li>
+<li><p>’auto’ will attempt to decide the most appropriate algorithm
+based on the values passed to <code class="xref py py-meth docutils literal notranslate"><span class="pre">fit()</span></code> method.</p></li>
+</ul>
+<p>Note: fitting on sparse input will override the setting of
+this parameter, using brute force.</p>
+</p></li>
+<li><p><strong>leaf_size</strong> (<em>int</em><em>, </em><em>default=30</em>) – Leaf size passed to BallTree or KDTree.  This can affect the
+speed of the construction and query, as well as the memory
+required to store the tree.  The optimal value depends on the
+nature of the problem.</p></li>
+<li><p><strong>p</strong> (<em>int</em><em>, </em><em>default=2</em>) – Power parameter for the Minkowski metric. When p = 1, this is
+equivalent to using manhattan_distance (l1), and euclidean_distance
+(l2) for p = 2. For arbitrary p, minkowski_distance (l_p) is used.</p></li>
+<li><p><strong>metric</strong> (<em>str</em><em> or </em><em>callable</em><em>, </em><em>default='minkowski'</em>) – The distance metric to use for the tree.  The default metric is
+minkowski, and with p=2 is equivalent to the standard Euclidean
+metric. See the documentation of <code class="xref py py-class docutils literal notranslate"><span class="pre">DistanceMetric</span></code> for a
+list of available metrics.
+If metric is “precomputed”, X is assumed to be a distance matrix and
+must be square during fit. X may be a <a class="reference external" href="https://scikit-learn.org/stable/glossary.html#term-sparse-graph" title="(in scikit-learn v1.0)"><span class="xref std std-term">sparse graph</span></a>,
+in which case only “nonzero” elements may be considered neighbors.</p></li>
+<li><p><strong>metric_params</strong> (<em>dict</em><em>, </em><em>default=None</em>) – Additional keyword arguments for the metric function.</p></li>
+<li><p><strong>n_jobs</strong> (<em>int</em><em>, </em><em>default=None</em>) – The number of parallel jobs to run for neighbors search.
+<code class="docutils literal notranslate"><span class="pre">None</span></code> means 1 unless in a <code class="xref py py-obj docutils literal notranslate"><span class="pre">joblib.parallel_backend</span></code> context.
+<code class="docutils literal notranslate"><span class="pre">-1</span></code> means using all processors. See <a class="reference external" href="https://scikit-learn.org/stable/glossary.html#term-n_jobs" title="(in scikit-learn v1.0)"><span class="xref std std-term">Glossary</span></a>
+for more details.
+Doesn’t affect <code class="xref py py-meth docutils literal notranslate"><span class="pre">fit()</span></code> method.</p></li>
+<li><p><strong>quantiles</strong> (<em>array-like</em><em>, </em><em>optional</em>) – Value ranging from 0 to 1</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sklearn_quantile.KNeighborsQuantileRegressor.effective_metric_">
+<span class="sig-name descname"><span class="pre">effective_metric_</span></span><a class="headerlink" href="#sklearn_quantile.KNeighborsQuantileRegressor.effective_metric_" title="Permalink to this definition"></a></dt>
+<dd><p>The distance metric to use. It will be same as the <cite>metric</cite> parameter
+or a synonym of it, e.g. ‘euclidean’ if the <cite>metric</cite> parameter set to
+‘minkowski’ and <cite>p</cite> parameter set to 2.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str or callable</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sklearn_quantile.KNeighborsQuantileRegressor.effective_metric_params_">
+<span class="sig-name descname"><span class="pre">effective_metric_params_</span></span><a class="headerlink" href="#sklearn_quantile.KNeighborsQuantileRegressor.effective_metric_params_" title="Permalink to this definition"></a></dt>
+<dd><p>Additional keyword arguments for the metric function. For most metrics
+will be same with <cite>metric_params</cite> parameter, but may also contain the
+<cite>p</cite> parameter value if the <cite>effective_metric_</cite> attribute is set to
+‘minkowski’.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sklearn_quantile.KNeighborsQuantileRegressor.n_features_in_">
+<span class="sig-name descname"><span class="pre">n_features_in_</span></span><a class="headerlink" href="#sklearn_quantile.KNeighborsQuantileRegressor.n_features_in_" title="Permalink to this definition"></a></dt>
+<dd><p>Number of features seen during <a class="reference external" href="https://scikit-learn.org/stable/glossary.html#term-fit" title="(in scikit-learn v1.0)"><span class="xref std std-term">fit</span></a>.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">New in version 0.24.</span></p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sklearn_quantile.KNeighborsQuantileRegressor.feature_names_in_">
+<span class="sig-name descname"><span class="pre">feature_names_in_</span></span><a class="headerlink" href="#sklearn_quantile.KNeighborsQuantileRegressor.feature_names_in_" title="Permalink to this definition"></a></dt>
+<dd><p>Names of features seen during <a class="reference external" href="https://scikit-learn.org/stable/glossary.html#term-fit" title="(in scikit-learn v1.0)"><span class="xref std std-term">fit</span></a>. Defined only when <cite>X</cite>
+has feature names that are all strings.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">New in version 1.0.</span></p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>ndarray of shape (<cite>n_features_in_</cite>,)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sklearn_quantile.KNeighborsQuantileRegressor.n_samples_fit_">
+<span class="sig-name descname"><span class="pre">n_samples_fit_</span></span><a class="headerlink" href="#sklearn_quantile.KNeighborsQuantileRegressor.n_samples_fit_" title="Permalink to this definition"></a></dt>
+<dd><p>Number of samples in the fitted data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">NearestNeighbors</span></code></dt><dd><p>Unsupervised learner for implementing neighbor searches.</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">RadiusNeighborsRegressor</span></code></dt><dd><p>Regression based on neighbors within a fixed radius.</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">KNeighborsClassifier</span></code></dt><dd><p>Classifier implementing the k-nearest neighbors vote.</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">RadiusNeighborsClassifier</span></code></dt><dd><p>Classifier implementing a vote among neighbors within a given radius.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>See <a class="reference external" href="https://scikit-learn.org/stable/modules/neighbors.html#neighbors" title="(in scikit-learn v1.0)"><span class="xref std std-ref">Nearest Neighbors</span></a> in the online documentation
+for a discussion of the choice of <code class="docutils literal notranslate"><span class="pre">algorithm</span></code> and <code class="docutils literal notranslate"><span class="pre">leaf_size</span></code>.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Regarding the Nearest Neighbors algorithms, if it is found that two
+neighbors, neighbor <cite>k+1</cite> and <cite>k</cite>, have identical distances but
+different labels, the results will depend on the ordering of the
+training data.</p>
+</div>
+<p><a class="reference external" href="https://en.wikipedia.org/wiki/K-nearest_neighbors_algorithm">https://en.wikipedia.org/wiki/K-nearest_neighbors_algorithm</a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="sklearn_quantile.KNeighborsQuantileRegressor.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">quantiles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sklearn_quantile.KNeighborsQuantileRegressor.__init__" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<p class="rubric">Methods</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sklearn_quantile.KNeighborsQuantileRegressor.__init__" title="sklearn_quantile.KNeighborsQuantileRegressor.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>([quantiles])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code>(X, y)</p></td>
+<td><p>Fit the k-nearest neighbors regressor from the training dataset.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params</span></code>([deep])</p></td>
+<td><p>Get parameters for this estimator.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">kneighbors</span></code>([X, n_neighbors, return_distance])</p></td>
+<td><p>Find the K-neighbors of a point.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">kneighbors_graph</span></code>([X, n_neighbors, mode])</p></td>
+<td><p>Compute the (weighted) graph of k-Neighbors for points in X.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict</span></code>(X)</p></td>
+<td><p>Predict conditional quantile <cite>q</cite> of the nearest neighbours.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">score</span></code>(X, y)</p></td>
+<td><p>Return the coefficient of determination of the prediction.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code>(**params)</p></td>
+<td><p>Set the parameters of this estimator.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_quantiles</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="sklearn_quantile.RandomForestMaximumRegressor.html" class="btn btn-neutral float-left" title="sklearn_quantile.RandomForestMaximumRegressor" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Jasper Roebroek.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
