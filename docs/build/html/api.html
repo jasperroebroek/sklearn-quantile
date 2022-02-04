@@ -45,6 +45,10 @@
 <li class="toctree-l1"><a class="reference internal" href="methods.html">Quantile Regression Forest</a></li>
 <li class="toctree-l1"><a class="reference internal" href="methods.html#quantile-knn">Quantile KNN</a></li>
 </ul>
+<p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/example_qrf.html">Prediction Intervals for Quantile Regression Forests</a></li>
+</ul>
 <p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="whats_new.html">What’s new</a></li>
@@ -94,16 +98,16 @@
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/sklearn_quantile.RandomForestQuantileRegressor.html#sklearn_quantile.RandomForestQuantileRegressor" title="sklearn_quantile.RandomForestQuantileRegressor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RandomForestQuantileRegressor</span></code></a>(*[, method])</p></td>
-<td><p>A forest regressor providing quantile estimates.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/sklearn_quantile.RandomForestQuantileRegressor.html#sklearn_quantile.RandomForestQuantileRegressor" title="sklearn_quantile.RandomForestQuantileRegressor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RandomForestQuantileRegressor</span></code></a>([q, ...])</p></td>
+<td><p>A random forest regressor providing quantile estimates.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/sklearn_quantile.ExtraTreesQuantileRegressor.html#sklearn_quantile.ExtraTreesQuantileRegressor" title="sklearn_quantile.ExtraTreesQuantileRegressor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ExtraTreesQuantileRegressor</span></code></a>(*[, method])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/sklearn_quantile.ExtraTreesQuantileRegressor.html#sklearn_quantile.ExtraTreesQuantileRegressor" title="sklearn_quantile.ExtraTreesQuantileRegressor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ExtraTreesQuantileRegressor</span></code></a>([q, ...])</p></td>
 <td><p>An extra trees regressor providing quantile estimates.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="generated/sklearn_quantile.RandomForestMaximumRegressor.html#sklearn_quantile.RandomForestMaximumRegressor" title="sklearn_quantile.RandomForestMaximumRegressor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RandomForestMaximumRegressor</span></code></a>([n_estimators, ...])</p></td>
-<td><p>fit and predict functions for forest maximum regressors (quantile 1).</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/sklearn_quantile.RandomForestMaximumRegressor.html#sklearn_quantile.RandomForestMaximumRegressor" title="sklearn_quantile.RandomForestMaximumRegressor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RandomForestMaximumRegressor</span></code></a>(base_estimator)</p></td>
+<td><p>A random forest regressor predicting conditional maxima</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="generated/sklearn_quantile.KNeighborsQuantileRegressor.html#sklearn_quantile.KNeighborsQuantileRegressor" title="sklearn_quantile.KNeighborsQuantileRegressor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">KNeighborsQuantileRegressor</span></code></a>([quantiles])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/sklearn_quantile.KNeighborsQuantileRegressor.html#sklearn_quantile.KNeighborsQuantileRegressor" title="sklearn_quantile.KNeighborsQuantileRegressor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">KNeighborsQuantileRegressor</span></code></a>([q])</p></td>
 <td><p>Quantile regression based on k-nearest neighbors.</p></td>
 </tr>
 </tbody>

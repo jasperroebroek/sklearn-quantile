@@ -19,7 +19,6 @@
       ~RandomForestQuantileRegressor.fit
       ~RandomForestQuantileRegressor.get_params
       ~RandomForestQuantileRegressor.predict
-      ~RandomForestQuantileRegressor.repr
       ~RandomForestQuantileRegressor.score
       ~RandomForestQuantileRegressor.set_params
       ~RandomForestQuantileRegressor.validate_quantiles

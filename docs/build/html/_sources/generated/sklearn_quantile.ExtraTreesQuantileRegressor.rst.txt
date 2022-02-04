@@ -19,7 +19,6 @@
       ~ExtraTreesQuantileRegressor.fit
       ~ExtraTreesQuantileRegressor.get_params
       ~ExtraTreesQuantileRegressor.predict
-      ~ExtraTreesQuantileRegressor.repr
       ~ExtraTreesQuantileRegressor.score
       ~ExtraTreesQuantileRegressor.set_params
       ~ExtraTreesQuantileRegressor.validate_quantiles

@@ -7,10 +7,10 @@ import os
 extensions = [
     Extension("sklearn_quantile.utils.weighted_quantile",
               ["sklearn_quantile/utils/weighted_quantile.pyx"]),
-    Extension("sklearn_quantile.ensemble.qrf",
-              ["sklearn_quantile/ensemble/qrf.pyx"]),
-    Extension("sklearn_quantile.ensemble.max_rf",
-              ["sklearn_quantile/ensemble/max_rf.pyx"])
+    Extension("sklearn_quantile.ensemble.quantile",
+              ["sklearn_quantile/ensemble/quantile.pyx"]),
+    Extension("sklearn_quantile.ensemble.maximum",
+              ["sklearn_quantile/ensemble/maximum.pyx"])
 ]
 
 setup(
@@ -23,8 +23,8 @@ setup(
     author_email='roebroek.jasper@gmail.com',
     ext_modules=cythonize(extensions),
     include_dirs=[numpy.get_include()],
-    install_requires=['numpy', 'sklearn', 'joblib'],
+    install_requires=['sklearn'],
     extras_require={
-        'develop': ['cython', 'sphinx', 'sphinx_rtd_theme', 'numpydoc', 'jupyter', 'matplotlib']
+        'develop': ['cython', 'sphinx', 'sphinx_rtd_theme', 'numpydoc', 'jupyter', 'matplotlib', 'pandas']
     }
 )

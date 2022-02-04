@@ -201,7 +201,7 @@ html_theme = "sphinx_rtd_theme"
 # html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = "focalstatsdoc"
+htmlhelp_basename = "sklearn_quantile_doc"
 
 # -- Options for manual page output ---------------------------------------
 

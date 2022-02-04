@@ -5,4 +5,7 @@ sklearn_quantile.egg-info
 .pytest_cache
 build
 .idea
+.DS_Store
 *__pycache__
+
+todo

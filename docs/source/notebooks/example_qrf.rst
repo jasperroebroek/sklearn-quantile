@@ -74,7 +74,7 @@ the same parameterisation.
         min_samples_leaf=4,
         min_samples_split=4,
     )
-    qrf = RandomForestQuantileRegressor(**common_params, quantiles=[0.05, 0.5, 0.95])
+    qrf = RandomForestQuantileRegressor(**common_params, q=[0.05, 0.5, 0.95])
     qrf.fit(X_train, y_train)
 
 
@@ -82,7 +82,8 @@ the same parameterisation.
 
 .. parsed-literal::
 
-    RandomForestQuantileRegressor(max_depth=3, min_samples_leaf=4, min_samples_split=4, quantiles=[0.05, 0.5, 0.95], method='default')
+    RandomForestQuantileRegressor(max_depth=3, min_samples_leaf=4,
+                                  min_samples_split=4, q=[0.05, 0.5, 0.95])
 
 
 
@@ -146,7 +147,7 @@ conditional 90% interval (from 5th to 95th conditional percentiles).
 
 .. parsed-literal::
 
-    /tmp/ipykernel_74596/1410534679.py:11: UserWarning: color is redundantly defined by the 'color' keyword argument and the fmt string "r-" (-> color='r'). The keyword argument will take precedence.
+    /var/folders/dl/b3rz1nb55sqgldl8hnzqvz0m0000gn/T/ipykernel_38586/1410534679.py:11: UserWarning: color is redundantly defined by the 'color' keyword argument and the fmt string "r-" (-> color='r'). The keyword argument will take precedence.
       plt.plot(xx, y_med, 'r-', label='Predicted median', color="orange")
 
 
@@ -196,18 +197,18 @@ Measure the models with :func:``sklearn.mean_squared_error`` and
 .. raw:: html
 
     <style type="text/css">
-    #T_1366c_row0_col0, #T_1366c_row1_col1, #T_1366c_row2_col2, #T_1366c_row3_col3 {
+    #T_a596e_row0_col0, #T_a596e_row1_col1, #T_a596e_row2_col2, #T_a596e_row3_col3 {
       font-weight: bold;
     }
     </style>
-    <table id="T_1366c_">
+    <table id="T_a596e">
       <thead>
         <tr>
           <th class="blank level0" >&nbsp;</th>
-          <th class="col_heading level0 col0" >pbl=0.05</th>
-          <th class="col_heading level0 col1" >pbl=0.50</th>
-          <th class="col_heading level0 col2" >pbl=0.95</th>
-          <th class="col_heading level0 col3" >MSE</th>
+          <th id="T_a596e_level0_col0" class="col_heading level0 col0" >pbl=0.05</th>
+          <th id="T_a596e_level0_col1" class="col_heading level0 col1" >pbl=0.50</th>
+          <th id="T_a596e_level0_col2" class="col_heading level0 col2" >pbl=0.95</th>
+          <th id="T_a596e_level0_col3" class="col_heading level0 col3" >MSE</th>
         </tr>
         <tr>
           <th class="index_name level0" >model</th>
@@ -219,32 +220,32 @@ Measure the models with :func:``sklearn.mean_squared_error`` and
       </thead>
       <tbody>
         <tr>
-          <th id="T_1366c_level0_row0" class="row_heading level0 row0" >q 0.05</th>
-          <td id="T_1366c_row0_col0" class="data row0 col0" >0.153019</td>
-          <td id="T_1366c_row0_col1" class="data row0 col1" >1.501622</td>
-          <td id="T_1366c_row0_col2" class="data row0 col2" >2.850224</td>
-          <td id="T_1366c_row0_col3" class="data row0 col3" >21.100695</td>
+          <th id="T_a596e_level0_row0" class="row_heading level0 row0" >q 0.05</th>
+          <td id="T_a596e_row0_col0" class="data row0 col0" >0.155918</td>
+          <td id="T_a596e_row0_col1" class="data row0 col1" >1.524603</td>
+          <td id="T_a596e_row0_col2" class="data row0 col2" >2.893288</td>
+          <td id="T_a596e_row0_col3" class="data row0 col3" >21.433560</td>
         </tr>
         <tr>
-          <th id="T_1366c_level0_row1" class="row_heading level0 row1" >q 0.5</th>
-          <td id="T_1366c_row1_col0" class="data row1 col0" >0.568340</td>
-          <td id="T_1366c_row1_col1" class="data row1 col1" >0.745063</td>
-          <td id="T_1366c_row1_col2" class="data row1 col2" >0.921786</td>
-          <td id="T_1366c_row1_col3" class="data row1 col3" >9.850856</td>
+          <th id="T_a596e_level0_row1" class="row_heading level0 row1" >q 0.5</th>
+          <td id="T_a596e_row1_col0" class="data row1 col0" >0.571557</td>
+          <td id="T_a596e_row1_col1" class="data row1 col1" >0.752413</td>
+          <td id="T_a596e_row1_col2" class="data row1 col2" >0.933269</td>
+          <td id="T_a596e_row1_col3" class="data row1 col3" >9.864386</td>
         </tr>
         <tr>
-          <th id="T_1366c_level0_row2" class="row_heading level0 row2" >q 0.95</th>
-          <td id="T_1366c_row2_col0" class="data row2 col0" >4.213908</td>
-          <td id="T_1366c_row2_col1" class="data row2 col1" >2.305546</td>
-          <td id="T_1366c_row2_col2" class="data row2 col2" >0.397184</td>
-          <td id="T_1366c_row2_col3" class="data row2 col3" >43.325979</td>
+          <th id="T_a596e_level0_row2" class="row_heading level0 row2" >q 0.95</th>
+          <td id="T_a596e_row2_col0" class="data row2 col0" >4.252400</td>
+          <td id="T_a596e_row2_col1" class="data row2 col1" >2.314031</td>
+          <td id="T_a596e_row2_col2" class="data row2 col2" >0.375662</td>
+          <td id="T_a596e_row2_col3" class="data row2 col3" >38.857734</td>
         </tr>
         <tr>
-          <th id="T_1366c_level0_row3" class="row_heading level0 row3" >rf</th>
-          <td id="T_1366c_row3_col0" class="data row3 col0" >0.804176</td>
-          <td id="T_1366c_row3_col1" class="data row3 col1" >0.798308</td>
-          <td id="T_1366c_row3_col2" class="data row3 col2" >0.792439</td>
-          <td id="T_1366c_row3_col3" class="data row3 col3" >9.525029</td>
+          <th id="T_a596e_level0_row3" class="row_heading level0 row3" >rf</th>
+          <td id="T_a596e_row3_col0" class="data row3 col0" >0.783801</td>
+          <td id="T_a596e_row3_col1" class="data row3 col1" >0.789724</td>
+          <td id="T_a596e_row3_col2" class="data row3 col2" >0.795647</td>
+          <td id="T_a596e_row3_col3" class="data row3 col3" >9.478518</td>
         </tr>
       </tbody>
     </table>
@@ -291,18 +292,18 @@ We then do the same on the test set.
 .. raw:: html
 
     <style type="text/css">
-    #T_4e1bf_row0_col0, #T_4e1bf_row1_col1, #T_4e1bf_row1_col3, #T_4e1bf_row2_col2 {
+    #T_0fb54_row0_col0, #T_0fb54_row1_col1, #T_0fb54_row1_col3, #T_0fb54_row2_col2 {
       font-weight: bold;
     }
     </style>
-    <table id="T_4e1bf_">
+    <table id="T_0fb54">
       <thead>
         <tr>
           <th class="blank level0" >&nbsp;</th>
-          <th class="col_heading level0 col0" >pbl=0.05</th>
-          <th class="col_heading level0 col1" >pbl=0.50</th>
-          <th class="col_heading level0 col2" >pbl=0.95</th>
-          <th class="col_heading level0 col3" >MSE</th>
+          <th id="T_0fb54_level0_col0" class="col_heading level0 col0" >pbl=0.05</th>
+          <th id="T_0fb54_level0_col1" class="col_heading level0 col1" >pbl=0.50</th>
+          <th id="T_0fb54_level0_col2" class="col_heading level0 col2" >pbl=0.95</th>
+          <th id="T_0fb54_level0_col3" class="col_heading level0 col3" >MSE</th>
         </tr>
         <tr>
           <th class="index_name level0" >model</th>
@@ -314,32 +315,32 @@ We then do the same on the test set.
       </thead>
       <tbody>
         <tr>
-          <th id="T_4e1bf_level0_row0" class="row_heading level0 row0" >q 0.05</th>
-          <td id="T_4e1bf_row0_col0" class="data row0 col0" >0.149296</td>
-          <td id="T_4e1bf_row0_col1" class="data row0 col1" >1.434968</td>
-          <td id="T_4e1bf_row0_col2" class="data row0 col2" >2.720640</td>
-          <td id="T_4e1bf_row0_col3" class="data row0 col3" >16.748197</td>
+          <th id="T_0fb54_level0_row0" class="row_heading level0 row0" >q 0.05</th>
+          <td id="T_0fb54_row0_col0" class="data row0 col0" >0.152957</td>
+          <td id="T_0fb54_row0_col1" class="data row0 col1" >1.457100</td>
+          <td id="T_0fb54_row0_col2" class="data row0 col2" >2.761244</td>
+          <td id="T_0fb54_row0_col3" class="data row0 col3" >16.976903</td>
         </tr>
         <tr>
-          <th id="T_4e1bf_level0_row1" class="row_heading level0 row1" >q 0.5</th>
-          <td id="T_4e1bf_row1_col0" class="data row1 col0" >0.679466</td>
-          <td id="T_4e1bf_row1_col1" class="data row1 col1" >0.714276</td>
-          <td id="T_4e1bf_row1_col2" class="data row1 col2" >0.749085</td>
-          <td id="T_4e1bf_row1_col3" class="data row1 col3" >6.554262</td>
+          <th id="T_0fb54_level0_row1" class="row_heading level0 row1" >q 0.5</th>
+          <td id="T_0fb54_row1_col0" class="data row1 col0" >0.705819</td>
+          <td id="T_0fb54_row1_col1" class="data row1 col1" >0.738051</td>
+          <td id="T_0fb54_row1_col2" class="data row1 col2" >0.770283</td>
+          <td id="T_0fb54_row1_col3" class="data row1 col3" >6.705497</td>
         </tr>
         <tr>
-          <th id="T_4e1bf_level0_row2" class="row_heading level0 row2" >q 0.95</th>
-          <td id="T_4e1bf_row2_col0" class="data row2 col0" >5.037463</td>
-          <td id="T_4e1bf_row2_col1" class="data row2 col1" >2.716894</td>
-          <td id="T_4e1bf_row2_col2" class="data row2 col2" >0.396326</td>
-          <td id="T_4e1bf_row2_col3" class="data row2 col3" >70.789836</td>
+          <th id="T_0fb54_level0_row2" class="row_heading level0 row2" >q 0.95</th>
+          <td id="T_0fb54_row2_col0" class="data row2 col0" >5.131204</td>
+          <td id="T_0fb54_row2_col1" class="data row2 col1" >2.763838</td>
+          <td id="T_0fb54_row2_col2" class="data row2 col2" >0.396472</td>
+          <td id="T_0fb54_row2_col3" class="data row2 col3" >67.215948</td>
         </tr>
         <tr>
-          <th id="T_4e1bf_level0_row3" class="row_heading level0 row3" >rf</th>
-          <td id="T_4e1bf_row3_col0" class="data row3 col0" >0.987137</td>
-          <td id="T_4e1bf_row3_col1" class="data row3 col1" >0.820269</td>
-          <td id="T_4e1bf_row3_col2" class="data row3 col2" >0.653400</td>
-          <td id="T_4e1bf_row3_col3" class="data row3 col3" >7.164530</td>
+          <th id="T_0fb54_level0_row3" class="row_heading level0 row3" >rf</th>
+          <td id="T_0fb54_row3_col0" class="data row3 col0" >0.957845</td>
+          <td id="T_0fb54_row3_col1" class="data row3 col1" >0.809511</td>
+          <td id="T_0fb54_row3_col2" class="data row3 col2" >0.661178</td>
+          <td id="T_0fb54_row3_col3" class="data row3 col3" >7.094214</td>
         </tr>
       </tbody>
     </table>
@@ -400,7 +401,7 @@ coverage value for a 90% confidence interval.
 
 .. parsed-literal::
 
-    0.924
+    0.916
 
 
 
@@ -439,7 +440,7 @@ of the regressor.
         alpha=q,
         greater_is_better=False,  # maximize the negative loss
     )
-    qrf = RandomForestQuantileRegressor(random_state=0, quantiles=q)
+    qrf = RandomForestQuantileRegressor(random_state=0, q=q)
     search_05p = RandomizedSearchCV(
         qrf,
         param_grid,
@@ -479,7 +480,7 @@ boosting estimator itself:
         greater_is_better=False,  # maximize the negative loss
     )
     search_95p = clone(search_05p).set_params(
-        estimator__quantiles=q,
+        estimator__q=q,
         scoring=neg_mean_pinball_loss_95p_scorer,
     )
     search_95p.fit(X_train, y_train)

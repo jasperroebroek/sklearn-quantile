@@ -1,1 +1,1 @@
-from .qknn import KNeighborsQuantileRegressor
+from .quantile import KNeighborsQuantileRegressor

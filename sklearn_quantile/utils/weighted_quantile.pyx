@@ -170,13 +170,14 @@ cdef void _weighted_quantile_unchecked_1D(float[:] a,
                                     quantiles, interpolation)
 
 
-def _weighted_quantile_unchecked(a, q, weights, axis, overwrite_input=False, interpolation='linear',
-                                 keepdims=False):
+def _weighted_quantile_unchecked(a, q, weights, axis, overwrite_input=False, interpolation='linear'):
     """
     Numpy implementation
     Axis should not be none and a should have more than 1 dimension
     This implementation is faster than doing it manually in cython (as the
     looping currently happens with the GIL)
+
+    Return shape (q, chosen axis, other axes)
     """
     a = np.asarray(a, dtype=np.float32)
     weights = np.asarray(weights, dtype=np.float32)
@@ -231,6 +232,8 @@ def _weighted_quantile_unchecked(a, q, weights, axis, overwrite_input=False, int
         quantiles[idx_low] = np.take(a_sorted, 0, axis=0).flatten()
     if idx_high.sum() > 0:
         quantiles[idx_high] = np.take_along_axis(a_sorted, high, axis=0).flatten()
+
+    quantiles = np.moveaxis(quantiles, 1, axis + 1)
 
     return quantiles
 
@@ -295,8 +298,8 @@ def weighted_quantile(a, q, weights=None, axis=None, overwrite_input=False, inte
         raise ValueError("q must be a scalar or 1D")
 
     if weights is None:
-        return np.quantile(a, q, axis=axis, keepdims=keepdims, overwrite_input=overwrite_input,
-                           interpolation=interpolation)
+        quantiles = np.quantile(a, q, axis=axis, keepdims=True, overwrite_input=overwrite_input,
+                                interpolation=interpolation)
     else:
         a = np.asarray(a, dtype=np.float32)
         weights = np.asarray(weights, dtype=np.float32)
@@ -310,47 +313,46 @@ def weighted_quantile(a, q, weights=None, axis=None, overwrite_input=False, inte
 
         q = q.astype(np.float32)
 
-    if interpolation == 'linear':
-        c_interpolation = linear
-    elif interpolation == 'lower':
-        c_interpolation = lower
-    elif interpolation == 'higher':
-        c_interpolation = higher
-    elif interpolation == 'midpoint':
-        c_interpolation = midpoint
-    elif interpolation == 'nearest':
-        c_interpolation = nearest
-    else:
-        raise ValueError("interpolation should be one of: {'linear', 'lower', 'higher', 'midpoint', 'nearest'}")
+        if interpolation == 'linear':
+            c_interpolation = linear
+        elif interpolation == 'lower':
+            c_interpolation = lower
+        elif interpolation == 'higher':
+            c_interpolation = higher
+        elif interpolation == 'midpoint':
+            c_interpolation = midpoint
+        elif interpolation == 'nearest':
+            c_interpolation = nearest
+        else:
+            raise ValueError("interpolation should be one of: {'linear', 'lower', 'higher', 'midpoint', 'nearest'}")
 
-    if isinstance(axis, (tuple, list)):
-        raise NotImplementedError("Several axes are currently not supported.")
+        if isinstance(axis, (tuple, list)):
+            raise NotImplementedError("Several axes are currently not supported.")
 
-    elif axis is not None and a.ndim > 1:
-        quantiles = _weighted_quantile_unchecked(a, q, weights, axis, interpolation=interpolation,
-                                                 keepdims=keepdims)
+        elif axis is not None and a.ndim > 1:
+            quantiles = _weighted_quantile_unchecked(a, q, weights, axis, interpolation=interpolation)
 
-    else:
-        a = a.ravel()
-        weights = weights.ravel()
-        quantiles = np.empty(q.size, dtype=np.float32)
-        _weighted_quantile_unchecked_1D(a, q, weights, quantiles, c_interpolation)
+        else:
+            ndim = a.ndim
+            a = a.ravel()
+            weights = weights.ravel()
+            quantiles = np.empty(q.size, dtype=np.float32)
+            _weighted_quantile_unchecked_1D(a, q, weights, quantiles, c_interpolation)
+
+            if keepdims:
+                quantiles = quantiles.reshape((-1,) + (1,) * ndim)
+
+            if q.size == 1 and keepdims:
+                return quantiles[0]
+            elif q.size == 1 and not keepdims:
+                return quantiles.item()
+            else:
+                return quantiles
+
+    if not keepdims:
+        quantiles = np.take(quantiles, 0, axis=axis + 1)
 
     if q.size == 1:
         quantiles = quantiles[0]
-        start_axis = 0
-    else:
-        start_axis = 1
 
-    if keepdims:
-        if a.ndim > 1:
-            quantiles = np.moveaxis(quantiles, 0, axis)
-        return quantiles
-    else:
-        if quantiles.size == 1:
-            return quantiles.item()
-        else:
-            if quantiles.ndim == 1:
-                return quantiles
-            else:
-                return np.take(quantiles, 0, axis=start_axis)
+    return quantiles

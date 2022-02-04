@@ -1,13 +1,12 @@
-from sklearn.neighbors import KNeighborsRegressor
-from sklearn.metrics import mean_pinball_loss
-from sklearn.neighbors._base import _get_weights
 import numpy as np
-from numpy.lib.function_base import _quantile_is_valid
+from sklearn.neighbors import KNeighborsRegressor
+from sklearn.neighbors._base import _get_weights
 
+from sklearn_quantile.base import QuantileRegressorMixin
 from sklearn_quantile.utils import weighted_quantile
 
 
-class KNeighborsQuantileRegressor(KNeighborsRegressor):
+class KNeighborsQuantileRegressor(KNeighborsRegressor, QuantileRegressorMixin):
     """Quantile regression based on k-nearest neighbors.
 
     The target is predicted by local interpolation of the targets
@@ -21,6 +20,9 @@ class KNeighborsQuantileRegressor(KNeighborsRegressor):
     ----------
     n_neighbors : int, default=5
         Number of neighbors to use by default for :meth:`kneighbors` queries.
+
+    q : float or array-like, optional
+        Quantiles used for prediction (values ranging from 0 to 1)
 
     weights : {'uniform', 'distance'} or callable, default='uniform'
         Weight function used in prediction.  Possible values:
@@ -78,9 +80,6 @@ class KNeighborsQuantileRegressor(KNeighborsRegressor):
         for more details.
         Doesn't affect :meth:`fit` method.
 
-    quantiles : array-like, optional
-        Value ranging from 0 to 1
-
     Attributes
     ----------
     effective_metric_ : str or callable
@@ -131,37 +130,34 @@ class KNeighborsQuantileRegressor(KNeighborsRegressor):
     https://en.wikipedia.org/wiki/K-nearest_neighbors_algorithm
 
     """
-    def __init__(self, quantiles=None, **kwargs):
-        super(KNeighborsQuantileRegressor, self).__init__(**kwargs)
-        self.quantiles = quantiles
-
-    def validate_quantiles(self):
-        if self.quantiles is None:
-            raise AttributeError("Quantiles are not set. Please provide them with `model.quantiles = quantiles`")
-        q = np.asarray(self.quantiles, dtype=np.float32)
-        q = np.atleast_1d(q)
-        if q.ndim > 2:
-            raise ValueError("q must be a scalar or 1D")
-
-        if not _quantile_is_valid(q):
-            raise ValueError("Quantiles must be in the range [0, 1]")
-
-        return q
-
-    def score(self, X, y):
-        q = self.validate_quantiles()
-        y_pred = self.predict(X)
-        losses = np.empty(q.size)
-        if q.size == 1:
-            return mean_pinball_loss(y, y_pred, alpha=q.item())
-        else:
-            for i in range(q.size):
-                losses[i] = mean_pinball_loss(y, y_pred[i], alpha=q[i])
-            return np.mean(losses)
+    def __init__(
+            self,
+            n_neighbors=5,
+            q=None,
+            *,
+            weights="uniform",
+            algorithm="auto",
+            leaf_size=30,
+            p=2,
+            metric="minkowski",
+            metric_params=None,
+            n_jobs=None,
+    ):
+        super().__init__(
+            n_neighbors=n_neighbors,
+            algorithm=algorithm,
+            leaf_size=leaf_size,
+            metric=metric,
+            p=p,
+            metric_params=metric_params,
+            n_jobs=n_jobs,
+            weights=weights
+        )
+        self.q = q
 
     def predict(self, X):
         """
-        Predict conditional quantile `q` of the nearest neighbours.
+        Predict conditional quantile of the nearest neighbours.
 
         Parameters
         ----------
@@ -171,8 +167,10 @@ class KNeighborsQuantileRegressor(KNeighborsRegressor):
 
         Returns
         -------
-        y : ndarray of shape (n_queries,) or (n_queries, n_outputs), dtype=float
-            Target values.
+        y : ndarray of shape (n_queries,), (n_quantiles, n_queries),  (n_queries, n_outputs) or
+            (n_quantiles, n_queries, n_outputs), dtype=float
+            Target values. Shape depends on the number of requested quantiles and outputs, with
+            the simplest case returning a 1d array corresponding to the number of queries.
         """
         q = self.validate_quantiles()
         X = self._validate_data(X, accept_sparse='csr', reset=False)
@@ -194,8 +192,5 @@ class KNeighborsQuantileRegressor(KNeighborsRegressor):
 
         if self._y.ndim == 1:
             y_pred = y_pred[..., 0]
-
-        if q.size == 1:
-            y_pred = y_pred[0]
 
         return y_pred

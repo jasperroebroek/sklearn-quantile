@@ -1,2 +1,7 @@
-from .qrf import RandomForestQuantileRegressor, ExtraTreesQuantileRegressor
-from .max_rf import RandomForestMaximumRegressor
+from .quantile import (
+    RandomForestQuantileRegressor,
+    ExtraTreesQuantileRegressor,
+    SampleRandomForestQuantileRegressor,
+    SampleExtraTreesQuantileRegressor
+)
+from .maximum import RandomForestMaximumRegressor

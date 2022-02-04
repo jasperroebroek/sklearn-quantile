@@ -20,11 +20,13 @@ cimport numpy as np
 from joblib import Parallel
 
 import numpy as np
+from sklearn.tree import DecisionTreeRegressor
 from sklearn.utils.fixes import delayed, _joblib_parallel_args
 from sklearn.utils.validation import check_is_fitted, check_X_y
 from sklearn.ensemble._base import _partition_estimators
 from sklearn.ensemble._forest import _generate_sample_indices
-from sklearn.ensemble import RandomForestRegressor
+
+from sklearn_quantile.ensemble.quantile import BaseForestQuantileRegressor
 
 
 ctypedef np.npy_intp SIZE_t              # Type for indices and counters
@@ -82,46 +84,54 @@ def _accumulate_prediction(predict, X, out, lock):
         out[:] = np.maximum(prediction, out)
 
 
-class RandomForestMaximumRegressor(RandomForestRegressor):
+class RandomForestMaximumRegressor(BaseForestQuantileRegressor):
     """
-    fit and predict functions for forest maximum regressors (quantile 1).
-    Implementation based on original paper of Meinshausen (2006).
+    A random forest regressor predicting conditional maxima
+
+    Implementation is equivalent to Random Forest Quantile Regressor,
+    but calculation is much faster. For other quantiles revert to the
+    original predictor.
     """
+    def __init__(self,
+                 n_estimators=10,
+                 criterion='mse',
+                 max_depth=None,
+                 min_samples_split=2,
+                 min_samples_leaf=1,
+                 min_weight_fraction_leaf=0.0,
+                 max_features='auto',
+                 max_leaf_nodes=None,
+                 bootstrap=True,
+                 oob_score=False,
+                 n_jobs=1,
+                 random_state=None,
+                 verbose=0,
+                 warm_start=False):
+        super(BaseForestQuantileRegressor, self).__init__(
+            base_estimator=DecisionTreeRegressor(),
+            n_estimators=n_estimators,
+            estimator_params=("criterion", "max_depth", "min_samples_split",
+                              "min_samples_leaf", "min_weight_fraction_leaf",
+                              "max_features", "max_leaf_nodes",
+                              "random_state"),
+            bootstrap=bootstrap,
+            oob_score=oob_score,
+            n_jobs=n_jobs,
+            random_state=random_state,
+            verbose=verbose,
+            warm_start=warm_start)
+
+        self.criterion = criterion
+        self.max_depth = max_depth
+        self.min_samples_split = min_samples_split
+        self.min_samples_leaf = min_samples_leaf
+        self.min_weight_fraction_leaf = min_weight_fraction_leaf
+        self.max_features = max_features
+        self.max_leaf_nodes = max_leaf_nodes
+        self.q = 1
+
     def fit(self, X, y, sample_weight=None):
-        # apply method requires X to be of dtype np.float32
-        X, y = check_X_y(
-            X, y, accept_sparse="csc", dtype=np.float32, multi_output=False)
-        super(RandomForestMaximumRegressor, self).fit(X, y, sample_weight=sample_weight)
-
-        self.n_samples_ = len(y)
-
-        self.y_train_ = y.astype(np.float32)
-        self.y_train_leaves_ = self.apply(X).T
-        self.y_weights_ = np.zeros_like(self.y_train_leaves_, dtype=np.float32)
-
-        if sample_weight is None:
-            sample_weight = np.ones(self.n_samples_)
-
-        for i, est in enumerate(self.estimators_):
-            est.y_train_ = self.y_train_
-            est.y_train_leaves_ = self.y_train_leaves_[i]
-            est.y_weights_ = self.y_weights_[i]
-            est.verbose = self.verbose
-            est.n_samples_ = self.n_samples_
-            est.bootstrap = self.bootstrap
-            est._i = i
-
-        for i, est in enumerate(self.estimators_):
-            if self.bootstrap:
-                bootstrap_indices = _generate_sample_indices(
-                    est.random_state, self.n_samples_, self.n_samples_)
-            else:
-                bootstrap_indices = np.arange(self.n_samples_)
-
-            weights = sample_weight * np.bincount(bootstrap_indices, minlength=self.n_samples_)
-            self.y_weights_[i] = weights / est.tree_.weighted_n_node_samples[self.y_train_leaves_[i]]
-
-        self.y_train_leaves_[self.y_weights_ == 0] = -1
+        super(RandomForestMaximumRegressor, self).fit(X, y, sample_weight)
 
         for i, est in enumerate(self.estimators_):
             if self.verbose:
@@ -135,7 +145,7 @@ class RandomForestMaximumRegressor(RandomForestRegressor):
             unique_leaves = np.unique(leaves)
 
             sampled_values = np.full(len(unique_leaves), -np.inf, dtype=np.float32)
-            _maximum_per_leaf(leaves, unique_leaves, est.y_train_[mask], idx, sampled_values, self.n_jobs)
+            _maximum_per_leaf(leaves, unique_leaves, est.y_train_[mask, 0], idx, sampled_values, self.n_jobs)
 
             est.tree_.value[unique_leaves, 0, 0] = sampled_values
 

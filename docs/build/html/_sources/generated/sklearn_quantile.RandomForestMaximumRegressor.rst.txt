@@ -21,6 +21,7 @@
       ~RandomForestMaximumRegressor.predict
       ~RandomForestMaximumRegressor.score
       ~RandomForestMaximumRegressor.set_params
+      ~RandomForestMaximumRegressor.validate_quantiles
    
    
 

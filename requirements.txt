@@ -1,6 +1,5 @@
 matplotlib
 numpy
-sklearn
 scikit-learn
 pytest
 setuptools
@@ -9,3 +8,4 @@ sphinx
 sphinx_rtd_theme
 numpydoc
 jupyter
+pandas
