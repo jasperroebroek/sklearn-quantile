@@ -18,6 +18,16 @@ Implemented:
 
 - Quantile K-nearest neighbors (KNeighborsQuantileRegressor)
 
+# Installation
+
+The package can be installed with pip (when cython and scikit-learn are already installed):
+
+```
+pip install sklearn-quantile
+```
+
+# Example
+
 An example of Random Forest Quantile Regression in action (both the main implementation and its approximation):
 
-![](./tests/examples/readme_example.png)
+<img src="https://github.com/jasperroebroek/sklearn-quantile/blob/master/tests/examples/readme_example.png"/>
