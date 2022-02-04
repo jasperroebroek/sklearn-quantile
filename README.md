@@ -30,4 +30,4 @@ pip install sklearn-quantile
 
 An example of Random Forest Quantile Regression in action (both the main implementation and its approximation):
 
-<img src="https://github.com/jasperroebroek/sklearn-quantile/blob/master/tests/examples/readme_example.png"/>
+<img src="https://github.com/jasperroebroek/sklearn-quantile/raw/master/tests/examples/readme_example.png"/>

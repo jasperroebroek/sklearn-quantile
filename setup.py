@@ -21,7 +21,8 @@ extensions = [
 
 setup(
     name='sklearn_quantile',
-    version='0.0.3',
+    version='0.0.3', # Pypi
+    # version='0.0.5', # TestPypi
     packages=find_packages(),
     url='https://github.com/jasperroebroek/sklearn-quantile',
     license='BSD 3 clause',
