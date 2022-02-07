@@ -14,7 +14,6 @@ Nicolai Meinshausen, Quantile Regression Forests
 http://www.jmlr.org/papers/volume7/meinshausen06a/meinshausen06a.pdf
 """
 from cython.parallel cimport prange
-cimport openmp
 cimport numpy as np
 from numpy cimport ndarray
 

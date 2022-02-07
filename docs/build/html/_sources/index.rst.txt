@@ -11,6 +11,8 @@ This module provides quantile machine learning models for python, in a plug-and-
 This means that practically the only dependency is sklearn and all its functionality is applicable to the here provided
 models without code changes.
 
+Two tutorials explain the development of Random Forest Quantile regression. The same results and considerations are valid for K-nearest neighbours quantile regression and Extra Trees quantile regression.
+
 *************
 Documentation
 *************
@@ -31,6 +33,7 @@ Documentation
    :maxdepth: 2
    :caption: Tutorials
 
+   notebooks/example_usage
    notebooks/example_qrf
 
 .. toctree::

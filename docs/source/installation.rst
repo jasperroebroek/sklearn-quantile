@@ -13,10 +13,4 @@ Install with
 
 .. code-block:: bash
 
-    pip install sklearn_quantile
-
-To install with development requirements
-
-.. code-block:: bash
-
-   python setup.py develop
+    pip install sklearn-quantile

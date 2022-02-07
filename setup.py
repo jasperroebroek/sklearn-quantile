@@ -21,8 +21,7 @@ extensions = [
 
 setup(
     name='sklearn_quantile',
-    version='0.0.3', # Pypi
-    # version='0.0.5', # TestPypi
+    version='0.0.17',
     packages=find_packages(),
     url='https://github.com/jasperroebroek/sklearn-quantile',
     license='BSD 3 clause',
@@ -30,10 +29,10 @@ setup(
     author_email='roebroek.jasper@gmail.com',
     ext_modules=cythonize(extensions),
     include_dirs=[numpy.get_include()],
-    setup_requires=['cython', 'numpy'],
-    install_requires=['sklearn', 'numpy'],
+    setup_requires=['cython', 'numpy', 'setuptools'],
+    install_requires=['scikit-learn', 'numpy'],
     extras_require={
-        'develop': ['cython', 'sphinx', 'sphinx_rtd_theme', 'numpydoc', 'jupyter', 'matplotlib', 'pandas']
+        'develop': ['cython', 'scikit-learn', 'sphinx', 'sphinx_rtd_theme', 'numpydoc', 'jupyter', 'matplotlib', 'pandas']
     },
     long_description=read_file('README.md'),
     long_description_content_type='text/markdown',

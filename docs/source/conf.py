@@ -218,7 +218,7 @@ call("conda list", shell=True)
 # disable warnings
 warnings.filterwarnings("ignore")
 
-notebooks = ('notebooks/example_qrf',)
+notebooks = ('notebooks/example_qrf', 'notebooks/example_usage')
 
 print("\nBuilding notebooks:")
 for nb in notebooks:

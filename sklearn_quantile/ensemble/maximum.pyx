@@ -15,7 +15,6 @@ import threading
 
 import joblib
 from cython.parallel cimport prange
-cimport openmp
 cimport numpy as np
 from joblib import Parallel
 

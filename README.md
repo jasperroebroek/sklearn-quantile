@@ -30,4 +30,28 @@ pip install sklearn-quantile
 
 An example of Random Forest Quantile Regression in action (both the main implementation and its approximation):
 
-<img src="https://github.com/jasperroebroek/sklearn-quantile/raw/master/tests/examples/readme_example.png"/>
+<img src="https://github.com/jasperroebroek/sklearn-quantile/raw/master/docs/source/notebooks/example.png"/>
+
+# Usage example
+
+Random Forest Quantile Regressor predicting the 5th, 50th and 95th percentile of the California housing dataset.
+
+```
+from sklearn.datasets import fetch_california_housing
+from sklearn.model_selection import train_test_split
+from sklearn_quantile import RandomForestQuantileRegressor
+
+X, y = fetch_california_housing(return_X_y=True)
+X_train, X_test, y_train, y_test = train_test_split(X, y, train_size=0.5, random_state=0)
+
+qrf = RandomForestQuantileRegressor(q=[0.05, 0.50, 0.95])
+qrf.fit(X_train, y_train)
+
+y_pred_5, y_pred_median, y_pred_95 = qrf.predict(X_test)
+qrf.score(X_test, y_test)
+```
+
+# Important links
+
+- API reference: https://sklearn-quantile.readthedocs.io/en/latest/api.html
+- Documentation: https://sklearn-quantile.readthedocs.io/en/latest/index.html
