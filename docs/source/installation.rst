@@ -4,7 +4,8 @@ Installation
 Required dependencies
 ---------------------
 
-- `sklearn <https://scikit-learn.org/stable/>`__
+- `scikit-learn>=1.0 <https://scikit-learn.org/stable/>`__
+- `cython <https://cython.org>`__
 
 Instructions
 ------------

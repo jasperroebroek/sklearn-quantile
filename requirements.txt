@@ -1,6 +1,6 @@
 matplotlib
 numpy
-scikit-learn
+scikit-learn>=1.0
 pytest
 setuptools
 cython

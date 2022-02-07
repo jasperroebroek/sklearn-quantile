@@ -20,7 +20,7 @@ Implemented:
 
 # Installation
 
-The package can be installed with pip (when cython and scikit-learn are already installed):
+The package can be installed with pip (when cython and numpy are already installed):
 
 ```
 pip install sklearn-quantile
