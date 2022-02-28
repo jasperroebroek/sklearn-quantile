@@ -20,10 +20,10 @@ Implemented:
 
 # Installation
 
-The package can be installed with pip (when cython and numpy are already installed):
+The package can be installed with conda:
 
 ```
-pip install sklearn-quantile
+conda install --channel conda-forge sklearn-quantile
 ```
 
 # Example

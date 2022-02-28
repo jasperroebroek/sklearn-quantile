@@ -4,14 +4,13 @@ Installation
 Required dependencies
 ---------------------
 
-- `scikit-learn>=1.0 <https://scikit-learn.org/stable/>`__
-- `cython <https://cython.org>`__
+- `scikit-learn >=1.0 <https://scikit-learn.org/stable/>`__
 
 Instructions
 ------------
 
-Install with
+Install with conda
 
 .. code-block:: bash
 
-    pip install sklearn-quantile
+    conda install --channel conda-forge sklearn-quantile
