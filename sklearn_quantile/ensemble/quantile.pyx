@@ -31,7 +31,6 @@ from joblib import Parallel
 from sklearn.ensemble._forest import ForestRegressor, _accumulate_prediction, _generate_sample_indices
 from sklearn.ensemble._base import _partition_estimators
 from sklearn.utils.fixes import delayed
-from sklearn.utils.fixes import _joblib_parallel_args
 from sklearn.tree import DecisionTreeRegressor, ExtraTreeRegressor
 from sklearn.utils import check_array, check_X_y, check_random_state
 from sklearn.utils.validation import check_is_fitted
@@ -285,8 +284,7 @@ class ForestQuantileRegressor(BaseForestQuantileRegressor, metaclass=ABCMeta):
 
         quantiles = np.empty((q.size, n_test_samples, self.n_outputs_), dtype=np.float32)
 
-        Parallel(n_jobs=n_jobs, verbose=self.verbose,
-                 **_joblib_parallel_args(require="sharedmem"))(
+        Parallel(n_jobs=n_jobs, verbose=self.verbose,require="sharedmem")(
             delayed(_quantile_forest_predict)(X_leaves, self.y_train_, self.y_train_leaves_, self.y_weights_, q,
                                               quantiles, chunks[i], chunks[i+1])
             for i in range(n_jobs))
@@ -345,8 +343,7 @@ class SampleForestQuantileRegressor(BaseForestQuantileRegressor, metaclass=ABCMe
         predictions = np.empty((len(X), self.n_outputs_, self.n_estimators))
 
         lock = threading.Lock()
-        Parallel(n_jobs=n_jobs, verbose=self.verbose,
-                 **_joblib_parallel_args(require="sharedmem"))(
+        Parallel(n_jobs=n_jobs, verbose=self.verbose,require="sharedmem")(
             delayed(_accumulate_prediction)(est.predict, X, i, predictions, lock)
             for i, est in enumerate(self.estimators_))
 
