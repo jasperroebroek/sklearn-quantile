@@ -20,7 +20,7 @@ from joblib import Parallel
 
 import numpy as np
 from sklearn.tree import DecisionTreeRegressor
-from sklearn.utils.fixes import delayed, _joblib_parallel_args
+from sklearn.utils.fixes import delayed
 from sklearn.utils.validation import check_is_fitted, check_X_y
 from sklearn.ensemble._base import _partition_estimators
 from sklearn.ensemble._forest import _generate_sample_indices
@@ -165,8 +165,7 @@ class RandomForestMaximumRegressor(BaseForestQuantileRegressor):
 
         # Parallel loop
         lock = threading.Lock()
-        Parallel(n_jobs=n_jobs, verbose=self.verbose,
-                 **_joblib_parallel_args(require="sharedmem"))(
+        Parallel(n_jobs=n_jobs, verbose=self.verbose,require="sharedmem")(
             delayed(_accumulate_prediction)(e.predict, X, y_hat, lock)
             for e in self.estimators_)
 
