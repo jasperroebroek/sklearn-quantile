@@ -21,7 +21,7 @@ extensions = [
 
 setup(
     name='sklearn_quantile',
-    version='0.0.18',
+    version='0.0.20',
     packages=find_packages(),
     url='https://github.com/jasperroebroek/sklearn-quantile',
     license='BSD 3 clause',
@@ -32,7 +32,7 @@ setup(
     setup_requires=['cython', 'numpy', 'setuptools'],
     install_requires=['scikit-learn>=1.0', 'numpy'],
     extras_require={
-        'develop': ['cython', 'scikit-learn>=1.0', 'sphinx', 'sphinx_rtd_theme', 'numpydoc', 'jupyter', 'matplotlib', 'pandas']
+        'develop': ['cython', 'scikit-learn>=1.0', 'sphinx', 'sphinx_rtd_theme', 'numpydoc', 'jupyter', 'matplotlib', 'pandas', 'packaging']
     },
     long_description=read_file('README.md'),
     long_description_content_type='text/markdown',

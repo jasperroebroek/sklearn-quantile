@@ -26,7 +26,6 @@ class QuantileRegressorMixin:
     def score(self, X, y):
         """
         Mean pinball loss for the quantile regressors.
-
         The average over all quantiles is calculated when more than one is provided.
         """
         q = self.validate_quantiles()
