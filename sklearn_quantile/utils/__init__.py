@@ -1,1 +1,1 @@
-from .weighted_quantile import weighted_quantile
+from sklearn_quantile.utils.weighted_quantile import weighted_quantile

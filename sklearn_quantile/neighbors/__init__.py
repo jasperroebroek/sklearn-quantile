@@ -1,1 +1,1 @@
-from .quantile import KNeighborsQuantileRegressor
+from sklearn_quantile.neighbors.quantile import KNeighborsQuantileRegressor

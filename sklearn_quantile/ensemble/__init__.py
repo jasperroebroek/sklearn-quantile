@@ -1,7 +1,7 @@
-from .quantile import (
+from sklearn_quantile.ensemble.quantile import (
     RandomForestQuantileRegressor,
     ExtraTreesQuantileRegressor,
     SampleRandomForestQuantileRegressor,
     SampleExtraTreesQuantileRegressor
 )
-from .maximum import RandomForestMaximumRegressor
+from sklearn_quantile.ensemble.maximum import RandomForestMaximumRegressor
