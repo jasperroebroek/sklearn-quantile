@@ -1,5 +1,6 @@
 *.so
 *.c
+*.html
 
 sklearn_quantile.egg-info
 .pytest_cache

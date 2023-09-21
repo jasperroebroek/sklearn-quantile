@@ -1,7 +1,6 @@
 # cython: cdivision=True
 # cython: boundscheck=False
 # cython: wraparound=False
-# cython: profile=True
 
 # Authors: Jasper Roebroek <roebroek.jasper@gmail.com>
 # License: BSD 3 clause
@@ -13,66 +12,63 @@ same parameters as the regular RandomForestRegressor
 """
 import threading
 
-import joblib
-from cython.parallel cimport prange
-cimport numpy as np
 from joblib import Parallel
 
 import numpy as np
+cimport numpy as cnp
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.utils.fixes import delayed
-from sklearn.utils.validation import check_is_fitted, check_X_y
+from sklearn.utils.validation import check_is_fitted
 from sklearn.ensemble._base import _partition_estimators
-from sklearn.ensemble._forest import _generate_sample_indices, RandomForestRegressor
+from sklearn.ensemble._forest import RandomForestRegressor
 
 from sklearn_quantile.ensemble.quantile import BaseForestQuantileRegressor
 from sklearn_quantile.utils.utils import create_keyword_dict
 
 
-ctypedef np.npy_intp SIZE_t              # Type for indices and counters
+ctypedef cnp.intp_t SIZE_t              # Type for indices and counters
 
 
 __all__ = ["RandomForestMaximumRegressor"]
 
 
-cdef void _maximum_per_leaf(SIZE_t[::1] leaves,
-                            SIZE_t[::1] unique_leaves,
-                            float[::1] values,
-                            SIZE_t[::1] idx,
-                            float[::1] sampled_values,
-                            SIZE_t n_jobs):
-    """
-    Index of maximum value for each unique leaf
+cdef int _maximum_per_leaf(SIZE_t[::1] leaves,
+                           float[::1] values,
+                           float[::1] tree_values) except -1:
 
+    """
+    Store the highest value found for each leaf in the tree_values array.
+    
     Parameters
     ----------
     leaves : array, shape = (n_samples)
-        Leaves of a Regression tree, corresponding to weights and indices (idx)
-    unique_leaves : array, shape = (n_unique_leaves)
+        Leaves of a Regression tree, corresponding to locations in the tree_values array.
     values : array, shape = (n_samples)
-    idx : array, shape = (n_samples)
-        Indices of original observations. The output will drawn from this.
-    sampled_idx : shape = (n_unique_leaves)
-    n_jobs : number of threads, similar to joblib
+    tree_values: array, shape = (n_nodes)
+        Initialised with -np.inf. Filled at leaf nodes with highest value
     """
     cdef:
-        int i, j
-        double c_leaf
-        float c_max
-
-        int n_unique_leaves = unique_leaves.shape[0]
+        int i
+        SIZE_t c_leaf
         int n_samples = leaves.shape[0]
 
-        int num_threads = joblib.effective_n_jobs(n_jobs)
+    with nogil:
+        for i in range(n_samples):
+            c_leaf = leaves[i]
+            if c_leaf == -1:
+                continue
+            if values[i] > tree_values[c_leaf]:
+                tree_values[c_leaf] = values[i]
 
-    for i in prange(n_samples, num_threads=num_threads, nogil=True):
-        c_leaf = leaves[i]
-        for j in range(n_unique_leaves):
-            if unique_leaves[j] == c_leaf:
-                break
 
-        if values[i] > sampled_values[j]:
-            sampled_values[j] = values[i]
+def _fit_each_tree(est):
+    values = np.full(est.tree_.node_count, dtype=np.float32, fill_value=-np.inf)
+
+    _maximum_per_leaf(leaves=est.y_train_leaves_,
+                      values=est.y_train_[:, 0],
+                      tree_values=values)
+
+    est.tree_.value[:, 0, 0] = values
 
 
 def _accumulate_prediction(predict, X, out, lock):
@@ -140,21 +136,12 @@ class RandomForestMaximumRegressor(BaseForestQuantileRegressor):
     def fit(self, X, y, sample_weight=None):
         super(RandomForestMaximumRegressor, self).fit(X, y, sample_weight)
 
-        for i, est in enumerate(self.estimators_):
-            if self.verbose:
-                print(f"Sampling tree {i+1} of {self.n_estimators}")
+        print("Sampling maximum per tree")
 
-            mask = est.y_weights_ > 0
-
-            leaves = est.y_train_leaves_[mask]
-            idx = np.arange(self.n_samples_, dtype=np.intp)[mask]
-
-            unique_leaves = np.unique(leaves)
-
-            sampled_values = np.full(len(unique_leaves), -np.inf, dtype=np.float32)
-            _maximum_per_leaf(leaves, unique_leaves, est.y_train_[mask, 0], idx, sampled_values, self.n_jobs)
-
-            est.tree_.value[unique_leaves, 0, 0] = sampled_values
+        n_jobs, _, _ = _partition_estimators(self.n_estimators, self.n_jobs)
+        Parallel(n_jobs=n_jobs, verbose=self.verbose, require="sharedmem")(
+            delayed(_fit_each_tree)(e)
+            for e in self.estimators_)
 
         return self
 
@@ -169,7 +156,7 @@ class RandomForestMaximumRegressor(BaseForestQuantileRegressor):
         # Assign chunk of trees to jobs
         n_jobs, _, _ = _partition_estimators(self.n_estimators, self.n_jobs)
 
-        y_hat = np.zeros(X.shape[0], dtype=np.float64)
+        y_hat = np.zeros(X.shape[0], dtype=np.float32)
 
         # Parallel loop
         lock = threading.Lock()

@@ -3,44 +3,48 @@
 # cython: wraparound=False
 # distutils: language = c
 
-cimport numpy as np
+cimport numpy as cnp
 import numpy as np
 from numpy.lib.function_base import _quantile_is_valid
 from libc.math cimport isnan
-from libc.stdlib cimport malloc, free
+from libc.stdlib cimport malloc, free, calloc
 
 
 cdef extern from "stdlib.h":
-    ctypedef void const_void "const void"
     void qsort(void *base, int nmemb, int size,
-            int(*compar)(const_void *, const_void *)) nogil
+               int(*compar)(const void *, const void *)) noexcept nogil
 
 
 cdef struct IndexedElement:
-    np.ulong_t index
-    np.float32_t value
+    size_t index
+    float value
 
 
-cdef int _compare(const_void *a, const_void *b):
-    cdef np.float32_t v
+cdef int _compare(const void *a, const void *b) noexcept nogil:
+    cdef float v
+    if isnan((<IndexedElement*> a).value) and isnan((<IndexedElement*> b).value): return 0
     if isnan((<IndexedElement*> a).value): return 1
     if isnan((<IndexedElement*> b).value): return -1
-    v = (<IndexedElement*> a).value-(<IndexedElement*> b).value
+    v = (<IndexedElement*> a).value - (<IndexedElement*> b).value
     if v < 0: return -1
     if v >= 0: return 1
 
 
 cdef long[:] argsort(float[:] data) nogil:
     """source: https://github.com/jcrudy/cython-argsort/blob/master/cyargsort/argsort.pyx"""
-    cdef np.ulong_t i
-    cdef np.ulong_t n = data.shape[0]
-    cdef long[:] order
+    cdef:
+        unsigned long i
+        size_t n = data.shape[0]
+        long[:] order
 
     with gil:
         order = np.empty(n, dtype=np.int_)
 
     # Allocate index tracking array.
     cdef IndexedElement *order_struct = <IndexedElement *> malloc(n * sizeof(IndexedElement))
+    if order_struct == NULL:
+        with gil:
+            raise MemoryError()
 
     # Copy data into index tracking array.
     for i in range(n):
@@ -68,6 +72,7 @@ cdef int _searchsorted1D(float[:] A, float x) nogil:
         int imin = 0
         int imax = A.shape[0]
         int imid
+
     while imin < imax:
         imid = imin + ((imax - imin) / 2)
         if A[imid] < x:
@@ -77,21 +82,19 @@ cdef int _searchsorted1D(float[:] A, float x) nogil:
     return imin
 
 
-cdef void _weighted_quantile_presorted_1D(float[:] a,
-                                          float[:] q,
-                                          float[:] weights,
-                                          float[:] quantiles,
-                                          Interpolation interpolation) nogil:
+cdef int _weighted_quantile_presorted_1D(float[:] a,
+                                         float[:] q,
+                                         float[:] weights,
+                                         float[:] quantiles,
+                                         Interpolation interpolation) except -1 nogil:
     """
     Weighted quantile (1D) on presorted data. 
     Note: the weights data will be changed
     """
-    cdef long q_idx
-    cdef float weights_total, weights_cum, frac
-    cdef int i
-
-    cdef int n_samples = a.shape[0]
-    cdef int n_q = q.shape[0]
+    cdef:
+        unsigned long i
+        size_t q_idx, n_samples = a.shape[0], n_q = q.shape[0]
+        float weights_total, weights_cum, frac
 
     weights_total = 0
     for i in range(n_samples):
@@ -130,21 +133,19 @@ cdef void _weighted_quantile_presorted_1D(float[:] a,
             quantiles[i] = a[q_idx] + frac * (a[q_idx + 1] - a[q_idx])
 
 
-cdef void _weighted_quantile_unchecked_1D(float[:] a,
-                                          float[:] q,
-                                          float[:] weights,
-                                          float[:] quantiles,
-                                          Interpolation interpolation) nogil:
+cdef int _weighted_quantile_unchecked_1D(float[:] a,
+                                         float[:] q,
+                                         float[:] weights,
+                                         float[:] quantiles,
+                                         Interpolation interpolation) except -1 nogil:
     """
     Weighted quantile (1D)
     Note: the data is not guaranteed to not be changed within this function
     """
-    cdef long[:] sort_idx
-    cdef int n_samples = a.shape[0]
-    cdef long count_samples = 0
-    cdef float[:] a_processed
-    cdef float[:] weights_processed
-    cdef int i
+    cdef:
+        long[:] sort_idx
+        size_t i, count_samples = 0, n_samples = a.shape[0]
+        float[:] a_processed, weights_processed
 
     for i in range(n_samples):
         if isnan(a[i]):
@@ -284,7 +285,7 @@ def weighted_quantile(a, q, weights=None, axis=None, overwrite_input=False, inte
         is a scalar. If multiple quantiles are given, first axis of
         the result corresponds to the quantiles. The other axes are
         the axes that remain after the reduction of `a`. The output
-        dtype is ``float64``.
+        dtype is ``float32``.
 
     References
     ----------

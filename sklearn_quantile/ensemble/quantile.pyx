@@ -1,7 +1,6 @@
 # cython: cdivision=True
 # cython: boundscheck=False
 # cython: wraparound=False
-# cython: profile=True
 
 # Authors: Jasper Roebroek <roebroek.jasper@gmail.com>
 # License: BSD 3 clause
@@ -13,8 +12,10 @@ based on the following paper:
 Nicolai Meinshausen, Quantile Regression Forests
 http://www.jmlr.org/papers/volume7/meinshausen06a/meinshausen06a.pdf
 """
+from libc.math cimport isnan
+
 from cython.parallel cimport prange
-cimport numpy as np
+cimport numpy as cnp
 from numpy cimport ndarray
 
 from sklearn_quantile.utils.weighted_quantile cimport _weighted_quantile_presorted_1D, \
@@ -37,21 +38,21 @@ from sklearn.utils.validation import check_is_fitted
 from sklearn_quantile.base import QuantileRegressorMixin
 from sklearn_quantile.utils.utils import create_keyword_dict
 
-ctypedef np.npy_intp SIZE_t              # Type for indices and counters
+ctypedef cnp.npy_intp SIZE_t              # Type for indices and counters
 
 
 __all__ = ["RandomForestQuantileRegressor", "ExtraTreesQuantileRegressor", "SampleRandomForestQuantileRegressor",
            "SampleExtraTreesQuantileRegressor"]
 
 
-cpdef void _quantile_forest_predict(SIZE_t[:, ::1] X_leaves,
-                                    float[:, ::1] y_train,
-                                    SIZE_t[:, ::1] y_train_leaves,
-                                    float[:, ::1] y_weights,
-                                    float[::1] q,
-                                    float[:, :, ::1] quantiles,
-                                    SIZE_t start,
-                                    SIZE_t stop):
+cdef int _quantile_forest_predict(SIZE_t[:, ::1] X_leaves,
+                                  float[:, ::1] y_train,
+                                  SIZE_t[:, ::1] y_train_leaves,
+                                  float[:, ::1] y_weights,
+                                  float[::1] q,
+                                  float[:, :, ::1] quantiles,
+                                  SIZE_t start,
+                                  SIZE_t stop) except -1:
     """
     X_leaves : (n_estimators, n_test_samples)
     y_train : (n_samples, n_outputs)
@@ -61,17 +62,16 @@ cpdef void _quantile_forest_predict(SIZE_t[:, ::1] X_leaves,
     quantiles : output array (n_q, n_test_samples, n_outputs)
     start, stop : indices to break up computation across threads (used in range)
     """
-    # todo; this does not compile with function cdef, only with cpdef
-    # todo; remove option for having more than one output variable
+    # todo; remove option for having more than one output variable?
 
     cdef:
-        int n_estimators = X_leaves.shape[0]
-        int n_outputs = y_train.shape[1]
-        int n_q = q.shape[0]
-        int n_samples = y_train.shape[0]
-        int n_test_samples = X_leaves.shape[1]
+        size_t n_estimators = X_leaves.shape[0]
+        size_t n_outputs = y_train.shape[1]
+        size_t n_q = q.shape[0]
+        size_t n_samples = y_train.shape[0]
+        size_t n_test_samples = X_leaves.shape[1]
 
-        int i, j, e, o, count_samples
+        long i, j, e, o, count_samples
         float curr_weight
         bint sorted = y_train.shape[1] == 1
 
@@ -95,55 +95,60 @@ cpdef void _quantile_forest_predict(SIZE_t[:, ::1] X_leaves,
                                                 q, x_weights[:count_samples],
                                                 quantiles[:, i, 0], Interpolation.linear)
             else:
-                for o in range(n_outputs):
-                    _weighted_quantile_unchecked_1D(x_a[:count_samples, o], q, x_weights[:count_samples],
-                                                    quantiles[:, i, o], Interpolation.linear)
+                with gil:
+                    raise NotImplemented("Multiple features are currently not supported")
+                # for o in range(n_outputs):
+                #     _weighted_quantile_unchecked_1D(x_a[:count_samples, o], q, x_weights[:count_samples],
+                #                                     quantiles[:, i, o], Interpolation.linear)
 
 
 cdef void _weighted_random_sample(SIZE_t[::1] leaves,
-                                  SIZE_t[::1] unique_leaves,
+                                  float[::1] values,
                                   float[::1] weights,
-                                  SIZE_t[::1] idx,
-                                  double[::1] random_numbers,
-                                  SIZE_t[::1] sampled_idx,
-                                  SIZE_t n_jobs):
+                                  float[::1] random_numbers,
+                                  float[::1] tree_values) nogil:
     """
     Random sample for each unique leaf
 
     Parameters
     ----------
     leaves : array, shape = (n_samples)
-        Leaves of a Regression tree, corresponding to weights and indices (idx)
-    unique_leaves : array, shape = (n_unique_leaves)
-
+        Leaves of a Regression tree, corresponding to random_numbers and tree_values
+    values : array, shape = (n_samples)
     weights : array, shape = (n_samples)
         Weights for each observation. They need to sum up to 1 per unique leaf.
-    idx : array, shape = (n_samples)
-        Indices of original observations. The output will drawn from this.
-    random numbers : array, shape = (n_unique_leaves)
-    sampled_idx : shape = (n_unique_leaves)
-    n_jobs : number of threads, similar to joblib
+    random numbers : array, shape = (n_nodes)
+    tree_values: array, shape = (n_nodes)
     """
+
     cdef:
-        long c_leaf
-        float p, r
-        int i, j
+        int i
+        size_t c_leaf
+        int n_samples = leaves.shape[0]
 
-        int n_unique_leaves = unique_leaves.shape[0]
-        int n_samples = weights.shape[0]
-        int num_threads = joblib.effective_n_jobs(n_jobs)
+    with nogil:
+        for i in range(n_samples):
+            c_leaf = leaves[i]
+            if c_leaf == -1:
+                continue
 
-    for i in prange(n_unique_leaves, nogil=True, num_threads=num_threads):
-        p = 0
-        r = random_numbers[i]
-        c_leaf = unique_leaves[i]
+            random_numbers[c_leaf] -= weights[i]
+            if random_numbers[c_leaf] <= 0 and isnan(tree_values[c_leaf]):
+                tree_values[c_leaf] = values[i]
 
-        for j in range(n_samples):
-            if leaves[j] == c_leaf:
-                p = p + weights[j]
-                if p > r:
-                    sampled_idx[i] = idx[j]
-                    break
+
+def _fit_sample_tree(est):
+    random_instance = check_random_state(est.random_state)
+    random_numbers = random_instance.rand(est.tree_.node_count).astype(np.float32)
+    values = np.full(est.tree_.node_count, dtype=np.float32, fill_value=np.nan)
+
+    _weighted_random_sample(leaves=est.y_train_leaves_,
+                            values=est.y_train_[:, 0],
+                            weights=est.y_weights_,
+                            random_numbers=random_numbers,
+                            tree_values=values)
+
+    est.tree_.value[:, 0, 0] = values
 
 
 def _accumulate_prediction(predict, X, i, out, lock):
@@ -196,10 +201,17 @@ class BaseForestQuantileRegressor(QuantileRegressorMixin, ForestRegressor, metac
         # multi-output should likely work, but tests need to be written first.
         #   known case of error: maximum regressor
         X, y = check_X_y(X, y, accept_sparse="csc", dtype=np.float32, multi_output=False)
+
+        if self.verbose:
+            print("Training forest")
         super(BaseForestQuantileRegressor, self).fit(X, y, sample_weight=sample_weight)
 
         self.n_samples_ = len(y)
         self.y_train_ = y.reshape((-1, self.n_outputs_)).astype(np.float32)
+
+        if self.verbose:
+            print("Applying training samples")
+
         self.y_train_leaves_ = self.apply(X).T
         self.y_weights_ = np.zeros_like(self.y_train_leaves_, dtype=np.float32)
 
@@ -306,27 +318,11 @@ class SampleForestQuantileRegressor(BaseForestQuantileRegressor, metaclass=ABCMe
     def fit(self, X, y, sample_weight=None):
         super(SampleForestQuantileRegressor, self).fit(X, y, sample_weight=sample_weight)
 
-        for i, est in enumerate(self.estimators_):
-            if self.verbose:
-                print(f"Sampling tree {i+1} of {self.n_estimators}")
-
-            mask = est.y_weights_ > 0
-
-            leaves = est.y_train_leaves_[mask]
-            idx = np.arange(self.n_samples_, dtype=np.intp)[mask]
-
-            unique_leaves = np.unique(leaves)
-
-            random_instance = check_random_state(est.random_state)
-            random_numbers = random_instance.rand(len(unique_leaves))
-
-            sampled_idx = np.empty(len(unique_leaves), dtype=np.intp)
-            n_jobs, _, _ = _partition_estimators(self.n_estimators, self.n_jobs)
-
-            _weighted_random_sample(leaves, unique_leaves, est.y_weights_[mask], idx, random_numbers, sampled_idx,
-                                    n_jobs)
-
-            est.tree_.value[unique_leaves, :, 0] = self.y_train_[sampled_idx]
+        print("Sampling trees")
+        n_jobs, _, _ = _partition_estimators(self.n_estimators, self.n_jobs)
+        Parallel(n_jobs=n_jobs, verbose=self.verbose, require="sharedmem")(
+            delayed(_fit_sample_tree)(e)
+            for e in self.estimators_)
 
         return self
 
