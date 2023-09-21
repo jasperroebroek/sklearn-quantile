@@ -1,10 +1,41 @@
 [build-system]
-requires = ["setuptools>=61.2", "cython>=3", "numpy"]
+requires = ["setuptools", "wheel", "numpy>=1.19.0", "Cython>=0.29.21"]
 build-backend = "setuptools.build_meta"
-
-[tool.setuptools.packages.find]
 
 [project]
 name = "sklearn-quantile"
 description = "README.md"
-dynamic = ["version"]
+version = "0.0.26"
+license = {file = "LICENSE"}
+authors = [
+    {name="Jasper Roebroek", email = "roebroek.jasper@gmail.com"}
+]
+readme = "README.md"
+
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Intended Audience :: Developers",
+    "Natural Language :: English",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+]
+
+dependencies = [
+    "numpy>=1.19.0",
+    "scikit-learn>=1",
+    "joblib",
+    "packaging"
+]
+
+[project.optional-dependencies]
+documentation = ["matplotlib", "sphinx", "sphinx_rtd_theme", "numpydoc", "jupyter", "pandas"]
+test = ["pytest"]
+develop = ["matplotlib", "sphinx", "sphinx_rtd_theme", "numpydoc", "jupyter", "pandas", "pytest"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[project.urls]
+repository = "https://github.com/jasperroebroek/sklearn-quantile"
+documentation = "https://sklearn-quantile.readthedocs.io/en/latest/index.html"
