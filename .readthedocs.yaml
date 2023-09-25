@@ -11,9 +11,4 @@ build:
     python: "3.11"
 
 sphinx:
-  builder: dirhtml
-  configuration: docs/conf.py
-
-python:
-   install:
-   - requirements: docs/requirements.txt
+  configuration: docs/source/conf.py
