@@ -1,2 +1,10 @@
 numpydoc
 jupyter
+matplotlib
+sphinx
+sphinx_rtd_theme
+numpydoc
+jupyter
+pandas
+cython
+numpy>1.22.3

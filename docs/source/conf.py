@@ -212,9 +212,6 @@ man_pages = [("index")]
 # If true, show URL addresses after external links.
 # man_show_urls = False
 
-# list conda packages
-call("conda list", shell=True)
-
 # disable warnings
 warnings.filterwarnings("ignore")
 
