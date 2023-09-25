@@ -4,6 +4,7 @@ on:
   push:
     tags:  # trigger the deploy job on tag creation
         - v*
+  workflow_dispatch:
 
 jobs:
   build:
@@ -29,6 +30,12 @@ jobs:
       - name: Create source dist
         run: python setup.py sdist
 
+      - name: Archive dist
+        uses: actions/upload-artifact@v2
+        with:
+          name: sdist
+          path: dist
+
   copy:
     runs-on: ubuntu-latest
     name: release
@@ -40,6 +47,16 @@ jobs:
           os: ['windows', 'linux', 'macos']
 
     steps:
+    - name: Create output folder
+      uses: actions/checkout@v2
+    - run: mkdir dist
+
+    - name: Load sdist
+      uses: actions/download-artifact@v2
+      with:
+        name: sdist
+    - run: mv -v ./* dist/
+
     - name: Stage ${{ matrix.os }} ${{ matrix.python-version }}
       uses: actions/download-artifact@v2
       with:
