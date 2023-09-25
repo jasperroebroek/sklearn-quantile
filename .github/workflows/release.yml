@@ -55,13 +55,13 @@ jobs:
       uses: actions/download-artifact@v2
       with:
         name: sdist
-    - run: mv -v ./* dist/
+    - run: mv -v *.tar.gz dist/
 
     - name: Stage ${{ matrix.os }} ${{ matrix.python-version }}
       uses: actions/download-artifact@v2
       with:
         name: dist-${{ matrix.os }}-${{ matrix.python-version }}
-    - run: mv -v ./* dist/
+    - run: mv -v *.whl dist/
 
   upload:
     runs-on: ubuntu-latest
