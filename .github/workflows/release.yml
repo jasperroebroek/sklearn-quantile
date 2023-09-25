@@ -6,13 +6,13 @@ on:
         - v*
 
 jobs:
-  push:
-    uses: ./.github/workflows/push.yml  # use the callable tests job to run tests
-    
+  build:
+    uses: ./.github/workflows/build.yml  # use the callable tests job to run tests
+
   copy:
     runs-on: ubuntu-latest
     name: release
-    needs: [push]
+    needs: [build]
     strategy:
         max-parallel: 1
         matrix:
