@@ -44,7 +44,7 @@ jobs:
       uses: actions/download-artifact@v2
       with:
         name: dist-${{ matrix.os }}-${{ matrix.python-version }}
-    - run: mv -v dist-${{ matrix.os }}-${{ matrix.python-version }}/* dist/
+    - run: mv -v ./* dist/
 
   upload:
     runs-on: ubuntu-latest
