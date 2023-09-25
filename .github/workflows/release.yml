@@ -15,10 +15,10 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Install Python package dependencies
-      run: /opt/python/cp${{ join(3, matrix.python-version) }}-cp${{ join(3, matrix.python-version) }}/bin/python -m pip install cython wheel setuptools
+      run: /opt/python/cp3${{ matrix.python-version }}-cp3${{ matrix.python-version }}/bin/python -m pip install cython wheel setuptools
 
     - name: Build binary wheel
-      run: /opt/python/cp${{ join(3, matrix.python-version) }}-cp${{ join(3, matrix.python-version) }}/bin/python setup.py bdist_wheel
+      run: /opt/python/cp3${{ matrix.python-version }}-cp3${{ matrix.python-version }}/bin/python setup.py bdist_wheel
 
     - name: Apply auditwheel for manylinux wheel
       run: auditwheel repair -w dist dist/*
@@ -29,7 +29,7 @@ jobs:
     - name: Archive dist artifacts
       uses: actions/upload-artifact@v2
       with:
-        name: dist-linux-${{ join(3, matrix.python-version) }}
+        name: dist-linux-3.${{ matrix.python-version }}
         path: dist
 
   build-macos:
