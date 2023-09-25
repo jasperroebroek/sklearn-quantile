@@ -26,15 +26,15 @@ from sklearn_quantile.ensemble.quantile import BaseForestQuantileRegressor
 from sklearn_quantile.utils.utils import create_keyword_dict
 
 
-ctypedef cnp.intp_t SIZE_t              # Type for indices and counters
+ctypedef cnp.intp_t SSIZE_t              # Type for indices and counters
 
 
 __all__ = ["RandomForestMaximumRegressor"]
 
 
-cdef void _maximum_per_leaf(SIZE_t[::1] leaves,
-                           float[::1] values,
-                           float[::1] tree_values) nogil:
+cdef void _maximum_per_leaf(SSIZE_t[::1] leaves,
+                            float[::1] values,
+                            float[::1] tree_values) nogil:
 
     """
     Store the highest value found for each leaf in the tree_values array.
@@ -49,7 +49,7 @@ cdef void _maximum_per_leaf(SIZE_t[::1] leaves,
     """
     cdef:
         int i
-        SIZE_t c_leaf
+        ssize_t c_leaf
         int n_samples = leaves.shape[0]
 
     with nogil:

@@ -6,9 +6,7 @@
 # License: BSD 3 clause
 
 """
-This module is inspired on the skgarden implementation of Forest Quantile Regression,
-based on the following paper:
-
+Based on the following paper:
 Nicolai Meinshausen, Quantile Regression Forests
 http://www.jmlr.org/papers/volume7/meinshausen06a/meinshausen06a.pdf
 """
@@ -196,7 +194,6 @@ class BaseForestQuantileRegressor(QuantileRegressorMixin, ForestRegressor, metac
         """
         # apply method requires X to be of dtype np.float32
         # multi-output should likely work, but tests need to be written first.
-        #   known case of error: maximum regressor
         X, y = check_X_y(X, y, accept_sparse="csc", dtype=np.float32, multi_output=False)
 
         if self.verbose:
