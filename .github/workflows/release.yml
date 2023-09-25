@@ -9,6 +9,26 @@ jobs:
   build:
     uses: ./.github/workflows/build.yml  # use the callable tests job to run tests
 
+  sdist:
+    name: sdist
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v2
+  
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.11
+  
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install cython wheel setuptools numpy>=1.22.3
+  
+      - name: Create source dist
+        run: python setup.py sdist
+
   copy:
     runs-on: ubuntu-latest
     name: release
@@ -20,21 +40,6 @@ jobs:
           os: ['windows', 'linux', 'macos']
 
     steps:
-    - uses: actions/checkout@v2
-
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: 3.11
-
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install cython wheel setuptools numpy>=1.22.3
-
-    - name: Create source dist
-      run: python setup.py sdist
-
     - name: Stage ${{ matrix.os }} ${{ matrix.python-version }}
       uses: actions/download-artifact@v2
       with:
@@ -44,7 +49,7 @@ jobs:
   upload:
     runs-on: ubuntu-latest
     name: release
-    needs: [copy]
+    needs: [copy, sdist]
     
     steps:
       
