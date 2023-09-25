@@ -33,21 +33,21 @@ from sklearn.utils.validation import check_is_fitted
 from sklearn_quantile.base import QuantileRegressorMixin
 from sklearn_quantile.utils.utils import create_keyword_dict
 
-ctypedef cnp.npy_intp SIZE_t              # Type for indices and counters
+ctypedef cnp.npy_intp SSIZE_t              # Type for indices and counters
 
 
 __all__ = ["RandomForestQuantileRegressor", "ExtraTreesQuantileRegressor", "SampleRandomForestQuantileRegressor",
            "SampleExtraTreesQuantileRegressor"]
 
 
-cpdef void _quantile_forest_predict(SIZE_t[:, ::1] X_leaves,
+cpdef void _quantile_forest_predict(SSIZE_t[:, ::1] X_leaves,
                                     float[:, ::1] y_train,
-                                    SIZE_t[:, ::1] y_train_leaves,
+                                    SSIZE_t[:, ::1] y_train_leaves,
                                     float[:, ::1] y_weights,
                                     float[::1] q,
                                     float[:, :, ::1] quantiles,
-                                    SIZE_t start,
-                                    SIZE_t stop):
+                                    SSIZE_t start,
+                                    SSIZE_t stop):
     """
     X_leaves : (n_estimators, n_test_samples)
     y_train : (n_samples, n_outputs)
@@ -97,7 +97,7 @@ cpdef void _quantile_forest_predict(SIZE_t[:, ::1] X_leaves,
                 #                                     quantiles[:, i, o], Interpolation.linear)
 
 
-cdef void _weighted_random_sample(SIZE_t[::1] leaves,
+cdef void _weighted_random_sample(SSIZE_t[::1] leaves,
                                   float[::1] values,
                                   float[::1] weights,
                                   float[::1] random_numbers,
@@ -118,7 +118,7 @@ cdef void _weighted_random_sample(SIZE_t[::1] leaves,
 
     cdef:
         int i
-        size_t c_leaf
+        ssize_t c_leaf
         int n_samples = leaves.shape[0]
 
     with nogil:
