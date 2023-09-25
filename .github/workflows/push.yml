@@ -1,11 +1,6 @@
 name: push
 
-on: 
-  push:
-    branches: 
-      - main
-    tags:
-      - v*
+on: push
 
 jobs:  
   build-linux:
