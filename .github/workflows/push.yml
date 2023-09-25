@@ -4,6 +4,13 @@ on:
   push:
     branches:
       - master
+    paths-ignore:
+      - README.md
+      - docs/**
+      - .github/**
+      - .readthedocs.yaml
+      - pyproject.toml
+      - .gitignore
 
 jobs:
   push:
