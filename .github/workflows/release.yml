@@ -41,7 +41,7 @@ jobs:
     name: release
     needs: [build]
     strategy:
-        max-parallel: 1
+        max-parallel: 4
         matrix:
           python-version: ["3.8", "3.9", "3.10", "3.11"]
           os: ['windows', 'linux', 'macos']
@@ -63,13 +63,24 @@ jobs:
         name: dist-${{ matrix.os }}-${{ matrix.python-version }}
     - run: mv -v *.whl dist/
 
+    - name: Archive
+      uses: actions/upload-artifact@v2
+      with:
+        name: dist
+        path: ./
+
   upload:
     runs-on: ubuntu-latest
     name: release
     needs: [copy, sdist]
     
     steps:
-      
+    
+    - name: Load
+      uses: actions/download-artifact@v2
+      with:
+        name: dist
+
     - name: Upload
       env:
         TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
