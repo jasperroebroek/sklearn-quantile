@@ -42,14 +42,14 @@ __all__ = ["RandomForestQuantileRegressor", "ExtraTreesQuantileRegressor", "Samp
            "SampleExtraTreesQuantileRegressor"]
 
 
-cdef void _quantile_forest_predict(SIZE_t[:, ::1] X_leaves,
-                                  float[:, ::1] y_train,
-                                  SIZE_t[:, ::1] y_train_leaves,
-                                  float[:, ::1] y_weights,
-                                  float[::1] q,
-                                  float[:, :, ::1] quantiles,
-                                  SIZE_t start,
-                                  SIZE_t stop):
+cpdef void _quantile_forest_predict(SIZE_t[:, ::1] X_leaves,
+                                    float[:, ::1] y_train,
+                                    SIZE_t[:, ::1] y_train_leaves,
+                                    float[:, ::1] y_weights,
+                                    float[::1] q,
+                                    float[:, :, ::1] quantiles,
+                                    SIZE_t start,
+                                    SIZE_t stop):
     """
     X_leaves : (n_estimators, n_test_samples)
     y_train : (n_samples, n_outputs)
