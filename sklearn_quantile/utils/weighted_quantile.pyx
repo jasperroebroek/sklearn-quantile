@@ -1,7 +1,7 @@
 # cython: cdivision=True
 # cython: boundscheck=False
 # cython: wraparound=False
-# distutils: language = c
+# distutils: language=c
 
 cimport numpy as cnp
 import numpy as np
@@ -12,7 +12,7 @@ from libc.stdlib cimport malloc, free, calloc
 
 cdef extern from "stdlib.h":
     void qsort(void *base, int nmemb, int size,
-               int(*compar)(const void *, const void *)) noexcept nogil
+               int(*compar)(const void *, const void *)) nogil
 
 
 cdef struct IndexedElement:
@@ -22,12 +22,18 @@ cdef struct IndexedElement:
 
 cdef int _compare(const void *a, const void *b) noexcept nogil:
     cdef float v
-    if isnan((<IndexedElement*> a).value) and isnan((<IndexedElement*> b).value): return 0
-    if isnan((<IndexedElement*> a).value): return 1
-    if isnan((<IndexedElement*> b).value): return -1
+    if isnan((<IndexedElement*> a).value) and isnan((<IndexedElement*> b).value): 
+        return 0
+    if isnan((<IndexedElement*> a).value): 
+        return 1
+    if isnan((<IndexedElement*> b).value): 
+        return -1
+    
     v = (<IndexedElement*> a).value - (<IndexedElement*> b).value
-    if v < 0: return -1
-    if v >= 0: return 1
+    if v < 0: 
+        return -1
+    if v >= 0: 
+        return 1
 
 
 cdef long[:] argsort(float[:] data) nogil:
@@ -43,8 +49,7 @@ cdef long[:] argsort(float[:] data) nogil:
     # Allocate index tracking array.
     cdef IndexedElement *order_struct = <IndexedElement *> malloc(n * sizeof(IndexedElement))
     if order_struct == NULL:
-        with gil:
-            raise MemoryError()
+        raise MemoryError()
 
     # Copy data into index tracking array.
     for i in range(n):
@@ -69,9 +74,7 @@ cdef int _searchsorted1D(float[:] A, float x) nogil:
     source: https://github.com/gesellkammer/numpyx/blob/master/numpyx.pyx
     """
     cdef:
-        int imin = 0
-        int imax = A.shape[0]
-        int imid
+        int imid, imin = 0, imax = A.shape[0]
 
     while imin < imax:
         imid = imin + ((imax - imin) / 2)
@@ -82,11 +85,11 @@ cdef int _searchsorted1D(float[:] A, float x) nogil:
     return imin
 
 
-cdef int _weighted_quantile_presorted_1D(float[:] a,
-                                         float[:] q,
-                                         float[:] weights,
-                                         float[:] quantiles,
-                                         Interpolation interpolation) except -1 nogil:
+cdef void _weighted_quantile_presorted_1D(float[:] a,
+                                          float[:] q,
+                                          float[:] weights,
+                                          float[:] quantiles,
+                                          Interpolation interpolation) nogil:
     """
     Weighted quantile (1D) on presorted data. 
     Note: the weights data will be changed
@@ -133,11 +136,11 @@ cdef int _weighted_quantile_presorted_1D(float[:] a,
             quantiles[i] = a[q_idx] + frac * (a[q_idx + 1] - a[q_idx])
 
 
-cdef int _weighted_quantile_unchecked_1D(float[:] a,
+cdef void _weighted_quantile_unchecked_1D(float[:] a,
                                          float[:] q,
                                          float[:] weights,
                                          float[:] quantiles,
-                                         Interpolation interpolation) except -1 nogil:
+                                         Interpolation interpolation) nogil:
     """
     Weighted quantile (1D)
     Note: the data is not guaranteed to not be changed within this function
@@ -171,7 +174,9 @@ cdef int _weighted_quantile_unchecked_1D(float[:] a,
                                     quantiles, interpolation)
 
 
-def _weighted_quantile_unchecked(a, q, weights, axis, overwrite_input=False, interpolation='linear'):
+def _weighted_quantile_unchecked(a, q, weights, axis, 
+                                 overwrite_input=False, 
+                                 interpolation='linear'):
     """
     Numpy implementation
     Axis should not be none and a should have more than 1 dimension

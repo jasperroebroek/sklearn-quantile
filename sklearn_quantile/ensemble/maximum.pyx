@@ -32,9 +32,9 @@ ctypedef cnp.intp_t SIZE_t              # Type for indices and counters
 __all__ = ["RandomForestMaximumRegressor"]
 
 
-cdef int _maximum_per_leaf(SIZE_t[::1] leaves,
+cdef void _maximum_per_leaf(SIZE_t[::1] leaves,
                            float[::1] values,
-                           float[::1] tree_values) except -1:
+                           float[::1] tree_values) nogil:
 
     """
     Store the highest value found for each leaf in the tree_values array.

@@ -14,9 +14,7 @@ http://www.jmlr.org/papers/volume7/meinshausen06a/meinshausen06a.pdf
 """
 from libc.math cimport isnan
 
-from cython.parallel cimport prange
 cimport numpy as cnp
-from numpy cimport ndarray
 
 from sklearn_quantile.utils.weighted_quantile cimport _weighted_quantile_presorted_1D, \
     _weighted_quantile_unchecked_1D, Interpolation
@@ -25,7 +23,6 @@ from abc import ABCMeta, abstractmethod
 
 import numpy as np
 import threading
-import joblib
 from joblib import Parallel
 
 from sklearn.ensemble._forest import ForestRegressor, _accumulate_prediction, _generate_sample_indices, \
@@ -45,14 +42,14 @@ __all__ = ["RandomForestQuantileRegressor", "ExtraTreesQuantileRegressor", "Samp
            "SampleExtraTreesQuantileRegressor"]
 
 
-cdef int _quantile_forest_predict(SIZE_t[:, ::1] X_leaves,
+cdef void _quantile_forest_predict(SIZE_t[:, ::1] X_leaves,
                                   float[:, ::1] y_train,
                                   SIZE_t[:, ::1] y_train_leaves,
                                   float[:, ::1] y_weights,
                                   float[::1] q,
                                   float[:, :, ::1] quantiles,
                                   SIZE_t start,
-                                  SIZE_t stop) except -1:
+                                  SIZE_t stop):
     """
     X_leaves : (n_estimators, n_test_samples)
     y_train : (n_samples, n_outputs)
