@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     container: quay.io/pypa/manylinux2014_x86_64
     strategy:
-      max-parallel: 4
+      max-parallel: 5
       matrix:
         python-version: ["8", "9", "10", "11", "12"]
 
@@ -35,7 +35,7 @@ jobs:
   build-macos:
     runs-on: macos-latest
     strategy:
-      max-parallel: 4
+      max-parallel: 5
       matrix:
         python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
 
@@ -63,7 +63,7 @@ jobs:
   build-windows:
     runs-on: windows-latest
     strategy:
-      max-parallel: 4
+      max-parallel: 5
       matrix:
         python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
 
