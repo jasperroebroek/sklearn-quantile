@@ -20,8 +20,6 @@ extensions = [
 ]
 
 setup(
-    name="sklearn-quantile",
-    version="0.0.29",
     packages=find_packages(),
     ext_modules=cythonize(extensions, annotate=True, language_level="3"),
     include_dirs=[numpy.get_include()]

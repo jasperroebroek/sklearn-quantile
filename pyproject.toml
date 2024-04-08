@@ -5,10 +5,10 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "sklearn-quantile"
 description = "README.md"
-version = "0.0.29"
-license = {file = "LICENSE"}
+version = "0.0.30"
+license = { file = "LICENSE" }
 authors = [
-    {name="Jasper Roebroek", email = "roebroek.jasper@gmail.com"}
+    { name = "Jasper Roebroek", email = "roebroek.jasper@gmail.com" }
 ]
 readme = "README.md"
 
@@ -23,7 +23,7 @@ classifiers = [
 
 dependencies = [
     "numpy>=1.19.0",
-    "scikit-learn>=1",
+    "scikit-learn>=1.4",
     "joblib",
     "packaging"
 ]

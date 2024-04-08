@@ -14,8 +14,7 @@ from libc.math cimport isnan
 
 cimport numpy as cnp
 
-from sklearn_quantile.utils.weighted_quantile cimport _weighted_quantile_presorted_1D, \
-    _weighted_quantile_unchecked_1D, Interpolation
+from sklearn_quantile.utils.weighted_quantile cimport _weighted_quantile_presorted_1D, Interpolation
 
 from abc import ABCMeta, abstractmethod
 
@@ -23,15 +22,13 @@ import numpy as np
 import threading
 from joblib import Parallel
 
-from sklearn.ensemble._forest import ForestRegressor, _accumulate_prediction, _generate_sample_indices, \
-    RandomForestRegressor, ExtraTreesRegressor
+from sklearn.ensemble._forest import ForestRegressor, _accumulate_prediction, _generate_sample_indices
 from sklearn.ensemble._base import _partition_estimators
 from sklearn.utils.fixes import delayed
 from sklearn.tree import DecisionTreeRegressor, ExtraTreeRegressor
 from sklearn.utils import check_array, check_X_y, check_random_state
 from sklearn.utils.validation import check_is_fitted
 from sklearn_quantile.base import QuantileRegressorMixin
-from sklearn_quantile.utils.utils import create_keyword_dict
 
 ctypedef cnp.npy_intp SSIZE_t              # Type for indices and counters
 
@@ -429,7 +426,6 @@ class RandomForestQuantileRegressor(ForestQuantileRegressor):
         - If float, then `max_features` is a fraction and
           `max(1, int(max_features * n_features_in_))` features are considered at each
           split.
-        - If "auto", then `max_features=n_features`.
         - If "sqrt", then `max_features=sqrt(n_features)`.
         - If "log2", then `max_features=log2(n_features)`.
         - If None or 1.0, then `max_features=n_features`.
@@ -440,10 +436,6 @@ class RandomForestQuantileRegressor(ForestQuantileRegressor):
 
         .. versionchanged:: 1.1
             The default of `max_features` changed from `"auto"` to 1.0.
-
-        .. deprecated:: 1.1
-            The `"auto"` option was deprecated in 1.1 and will be removed
-            in 1.3.
 
         Note: the search for a split does not stop until at least one
         valid partition of the node samples is found, even if it requires to
@@ -475,6 +467,12 @@ class RandomForestQuantileRegressor(ForestQuantileRegressor):
     bootstrap : bool, default=True
         Whether bootstrap samples are used when building trees. If False, the
         whole dataset is used to build each tree.
+
+    oob_score : bool or callable, default=False
+        Whether to use out-of-bag samples to estimate the generalization score.
+        By default, :func:`~sklearn.metrics.r2_score` is used.
+        Provide a callable with signature `metric(y_true, y_pred)` to use a
+        custom metric. Only available if `bootstrap=True`.
 
     n_jobs : int, default=None
         The number of jobs to run in parallel. :meth:`fit`, :meth:`predict`,
@@ -513,10 +511,26 @@ class RandomForestQuantileRegressor(ForestQuantileRegressor):
 
         - If None (default), then draw `X.shape[0]` samples.
         - If int, then draw `max_samples` samples.
-        - If float, then draw `max_samples * X.shape[0]` samples. Thus,
+        - If float, then draw `max(round(n_samples * max_samples), 1)` samples. Thus,
           `max_samples` should be in the interval `(0.0, 1.0]`.
 
         .. versionadded:: 0.22
+
+    monotonic_cst : array-like of int of shape (n_features), default=None
+        Indicates the monotonicity constraint to enforce on each feature.
+          - 1: monotonically increasing
+          - 0: no constraint
+          - -1: monotonically decreasing
+
+        If monotonic_cst is None, no constraints are applied.
+
+        Monotonicity constraints are not supported for:
+          - multioutput regressions (i.e. when `n_outputs_ > 1`),
+          - regressions trained on data with missing values.
+
+        Read more in the :ref:`User Guide <monotonic_cst_gbdt>`.
+
+        .. versionadded:: 1.4
 
     Attributes
     ----------
@@ -527,14 +541,6 @@ class RandomForestQuantileRegressor(ForestQuantileRegressor):
         .. versionadded:: 1.2
            `base_estimator_` was renamed to `estimator_`.
 
-    base_estimator_ : DecisionTreeRegressor
-        The child estimator template used to create the collection of fitted
-        sub-estimators.
-
-        .. deprecated:: 1.2
-            `base_estimator_` is deprecated and will be removed in 1.4.
-            Use `estimator_` instead.
-
     estimators_ : list of DecisionTreeRegressor
         The collection of fitted sub-estimators.
 
@@ -544,6 +550,7 @@ class RandomForestQuantileRegressor(ForestQuantileRegressor):
         The importance of a feature is computed as the (normalized)
         total reduction of the criterion brought by that feature.  It is also
         known as the Gini importance.
+
         Warning: impurity-based feature importances can be misleading for
         high cardinality features (many unique values). See
         :func:`sklearn.inspection.permutation_importance` as an alternative.
@@ -562,45 +569,78 @@ class RandomForestQuantileRegressor(ForestQuantileRegressor):
     n_outputs_ : int
         The number of outputs when ``fit`` is performed.
 
+    oob_score_ : float
+        Score of the training dataset obtained using an out-of-bag estimate.
+        This attribute exists only when ``oob_score`` is True.
+
+    oob_prediction_ : ndarray of shape (n_samples,) or (n_samples, n_outputs)
+        Prediction computed with out-of-bag estimate on the training set.
+        This attribute exists only when ``oob_score`` is True.
+
+    estimators_samples_ : list of arrays
+        The subset of drawn samples (i.e., the in-bag samples) for each base
+        estimator. Each subset is defined by an array of the indices selected.
+
+        .. versionadded:: 1.4
+
 	References
     ----------
     .. [1] Nicolai Meinshausen, Quantile Regression Forests
         http://www.jmlr.org/papers/volume7/meinshausen06a/meinshausen06a.pdf
     """
-    def __init__(self,
-                 q=None,
-                 n_estimators=100,
-                 *,
-                 criterion='squared_error',
-                 max_depth=None,
-                 min_samples_split=2,
-                 min_samples_leaf=1,
-                 min_weight_fraction_leaf=0.0,
-                 max_features=1.0,
-                 max_leaf_nodes=None,
-                 min_impurity_decrease=0.0,
-                 bootstrap=True,
-                 n_jobs=1,
-                 random_state=None,
-                 verbose=0,
-                 warm_start=False,
-                 ccp_alpha=0.0,
-                 max_samples=None):
+    _parameter_constraints: dict = {
+        **ForestRegressor._parameter_constraints,
+        **DecisionTreeRegressor._parameter_constraints,
+    }
+    _parameter_constraints.pop("splitter")
 
-        estimator_params = RandomForestRegressor().estimator_params
-
-        super(BaseForestQuantileRegressor, self).__init__(
-            **create_keyword_dict(
-                estimator=DecisionTreeRegressor(),
-                n_estimators=n_estimators,
-                estimator_params=estimator_params,
-                bootstrap=bootstrap,
-                n_jobs=n_jobs,
-                random_state=random_state,
-                verbose=verbose,
-                warm_start=warm_start,
-                max_samples=max_samples)
-            )
+    def __init__(
+            self,
+            n_estimators=100,
+            q=None,
+            *,
+            criterion="squared_error",
+            max_depth=None,
+            min_samples_split=2,
+            min_samples_leaf=1,
+            min_weight_fraction_leaf=0.0,
+            max_features=1.0,
+            max_leaf_nodes=None,
+            min_impurity_decrease=0.0,
+            bootstrap=True,
+            oob_score=False,
+            n_jobs=None,
+            random_state=None,
+            verbose=0,
+            warm_start=False,
+            ccp_alpha=0.0,
+            max_samples=None,
+            monotonic_cst=None,
+    ):
+        super().__init__(
+            estimator=DecisionTreeRegressor(),
+            n_estimators=n_estimators,
+            estimator_params=(
+                "criterion",
+                "max_depth",
+                "min_samples_split",
+                "min_samples_leaf",
+                "min_weight_fraction_leaf",
+                "max_features",
+                "max_leaf_nodes",
+                "min_impurity_decrease",
+                "random_state",
+                "ccp_alpha",
+                "monotonic_cst",
+            ),
+            bootstrap=bootstrap,
+            oob_score=oob_score,
+            n_jobs=n_jobs,
+            random_state=random_state,
+            verbose=verbose,
+            warm_start=warm_start,
+            max_samples=max_samples,
+        )
 
         self.criterion = criterion
         self.max_depth = max_depth
@@ -611,6 +651,7 @@ class RandomForestQuantileRegressor(ForestQuantileRegressor):
         self.max_leaf_nodes = max_leaf_nodes
         self.min_impurity_decrease = min_impurity_decrease
         self.ccp_alpha = ccp_alpha
+        self.monotonic_cst = monotonic_cst
         self.q = q
 
 
@@ -693,7 +734,6 @@ class ExtraTreesQuantileRegressor(ForestQuantileRegressor):
         - If float, then `max_features` is a fraction and
           `max(1, int(max_features * n_features_in_))` features are considered at each
           split.
-        - If "auto", then `max_features=n_features`.
         - If "sqrt", then `max_features=sqrt(n_features)`.
         - If "log2", then `max_features=log2(n_features)`.
         - If None or 1.0, then `max_features=n_features`.
@@ -704,10 +744,6 @@ class ExtraTreesQuantileRegressor(ForestQuantileRegressor):
 
         .. versionchanged:: 1.1
             The default of `max_features` changed from `"auto"` to 1.0.
-
-        .. deprecated:: 1.1
-            The `"auto"` option was deprecated in 1.1 and will be removed
-            in 1.3.
 
         Note: the search for a split does not stop until at least one
         valid partition of the node samples is found, even if it requires to
@@ -740,6 +776,12 @@ class ExtraTreesQuantileRegressor(ForestQuantileRegressor):
         Whether bootstrap samples are used when building trees. If False, the
         whole dataset is used to build each tree.
 
+    oob_score : bool or callable, default=False
+        Whether to use out-of-bag samples to estimate the generalization score.
+        By default, :func:`~sklearn.metrics.r2_score` is used.
+        Provide a callable with signature `metric(y_true, y_pred)` to use a
+        custom metric. Only available if `bootstrap=True`.
+
     n_jobs : int, default=None
         The number of jobs to run in parallel. :meth:`fit`, :meth:`predict`,
         :meth:`decision_path` and :meth:`apply` are all parallelized over the
@@ -749,11 +791,13 @@ class ExtraTreesQuantileRegressor(ForestQuantileRegressor):
 
     random_state : int, RandomState instance or None, default=None
         Controls 3 sources of randomness:
+
         - the bootstrapping of the samples used when building trees
           (if ``bootstrap=True``)
         - the sampling of the features to consider when looking for the best
           split at each node (if ``max_features < n_features``)
         - the draw of the splits for each of the `max_features`
+
         See :term:`Glossary <random_state>` for details.
 
     verbose : int, default=0
@@ -784,6 +828,22 @@ class ExtraTreesQuantileRegressor(ForestQuantileRegressor):
 
         .. versionadded:: 0.22
 
+    monotonic_cst : array-like of int of shape (n_features), default=None
+        Indicates the monotonicity constraint to enforce on each feature.
+          - 1: monotonically increasing
+          - 0: no constraint
+          - -1: monotonically decreasing
+
+        If monotonic_cst is None, no constraints are applied.
+
+        Monotonicity constraints are not supported for:
+          - multioutput regressions (i.e. when `n_outputs_ > 1`),
+          - regressions trained on data with missing values.
+
+        Read more in the :ref:`User Guide <monotonic_cst_gbdt>`.
+
+        .. versionadded:: 1.4
+
     Attributes
     ----------
     estimator_ : :class:`~sklearn.tree.ExtraTreeRegressor`
@@ -792,14 +852,6 @@ class ExtraTreesQuantileRegressor(ForestQuantileRegressor):
 
         .. versionadded:: 1.2
            `base_estimator_` was renamed to `estimator_`.
-
-    base_estimator_ : ExtraTreeRegressor
-        The child estimator template used to create the collection of fitted
-        sub-estimators.
-
-        .. deprecated:: 1.2
-            `base_estimator_` is deprecated and will be removed in 1.4.
-            Use `estimator_` instead.
 
     estimators_ : list of DecisionTreeRegressor
         The collection of fitted sub-estimators.
@@ -810,6 +862,7 @@ class ExtraTreesQuantileRegressor(ForestQuantileRegressor):
         The importance of a feature is computed as the (normalized)
         total reduction of the criterion brought by that feature.  It is also
         known as the Gini importance.
+
         Warning: impurity-based feature importances can be misleading for
         high cardinality features (many unique values). See
         :func:`sklearn.inspection.permutation_importance` as an alternative.
@@ -827,40 +880,73 @@ class ExtraTreesQuantileRegressor(ForestQuantileRegressor):
 
     n_outputs_ : int
         The number of outputs.
+
+    oob_score_ : float
+        Score of the training dataset obtained using an out-of-bag estimate.
+        This attribute exists only when ``oob_score`` is True.
+
+    oob_prediction_ : ndarray of shape (n_samples,) or (n_samples, n_outputs)
+        Prediction computed with out-of-bag estimate on the training set.
+        This attribute exists only when ``oob_score`` is True.
+
+    estimators_samples_ : list of arrays
+        The subset of drawn samples (i.e., the in-bag samples) for each base
+        estimator. Each subset is defined by an array of the indices selected.
+
+        .. versionadded:: 1.4
     """
-    def __init__(self,
-                 n_estimators=100,
-                 q=None,
-                 *,
-                 criterion="squared_error",
-                 max_depth=None,
-                 min_samples_split=2,
-                 min_samples_leaf=1,
-                 min_weight_fraction_leaf=0.0,
-                 max_features=1.0,
-                 max_leaf_nodes=None,
-                 min_impurity_decrease=0.0,
-                 bootstrap=False,
-                 n_jobs=None,
-                 random_state=None,
-                 verbose=0,
-                 warm_start=False,
-                 ccp_alpha=0.0,
-                 max_samples=None):
+    _parameter_constraints: dict = {
+        **ForestRegressor._parameter_constraints,
+        **DecisionTreeRegressor._parameter_constraints,
+    }
+    _parameter_constraints.pop("splitter")
 
-        estimator_params = ExtraTreesRegressor().estimator_params
-
+    def __init__(
+            self,
+            n_estimators=100,
+            q=None,
+            *,
+            criterion="squared_error",
+            max_depth=None,
+            min_samples_split=2,
+            min_samples_leaf=1,
+            min_weight_fraction_leaf=0.0,
+            max_features=1.0,
+            max_leaf_nodes=None,
+            min_impurity_decrease=0.0,
+            bootstrap=False,
+            oob_score=False,
+            n_jobs=None,
+            random_state=None,
+            verbose=0,
+            warm_start=False,
+            ccp_alpha=0.0,
+            max_samples=None,
+            monotonic_cst=None,
+    ):
         super().__init__(
-            **create_keyword_dict(
-                estimator=ExtraTreeRegressor(),
-                n_estimators=n_estimators,
-                estimator_params=estimator_params,
-                bootstrap=bootstrap,
-                n_jobs=n_jobs,
-                random_state=random_state,
-                verbose=verbose,
-                warm_start=warm_start,
-                max_samples=max_samples)
+            estimator=ExtraTreeRegressor(),
+            n_estimators=n_estimators,
+            estimator_params=(
+                "criterion",
+                "max_depth",
+                "min_samples_split",
+                "min_samples_leaf",
+                "min_weight_fraction_leaf",
+                "max_features",
+                "max_leaf_nodes",
+                "min_impurity_decrease",
+                "random_state",
+                "ccp_alpha",
+                "monotonic_cst",
+            ),
+            bootstrap=bootstrap,
+            oob_score=oob_score,
+            n_jobs=n_jobs,
+            random_state=random_state,
+            verbose=verbose,
+            warm_start=warm_start,
+            max_samples=max_samples,
         )
 
         self.criterion = criterion
@@ -872,6 +958,7 @@ class ExtraTreesQuantileRegressor(ForestQuantileRegressor):
         self.max_leaf_nodes = max_leaf_nodes
         self.min_impurity_decrease = min_impurity_decrease
         self.ccp_alpha = ccp_alpha
+        self.monotonic_cst = monotonic_cst
         self.q = q
 
 
@@ -957,7 +1044,6 @@ class SampleRandomForestQuantileRegressor(SampleForestQuantileRegressor):
         - If float, then `max_features` is a fraction and
           `max(1, int(max_features * n_features_in_))` features are considered at each
           split.
-        - If "auto", then `max_features=n_features`.
         - If "sqrt", then `max_features=sqrt(n_features)`.
         - If "log2", then `max_features=log2(n_features)`.
         - If None or 1.0, then `max_features=n_features`.
@@ -968,10 +1054,6 @@ class SampleRandomForestQuantileRegressor(SampleForestQuantileRegressor):
 
         .. versionchanged:: 1.1
             The default of `max_features` changed from `"auto"` to 1.0.
-
-        .. deprecated:: 1.1
-            The `"auto"` option was deprecated in 1.1 and will be removed
-            in 1.3.
 
         Note: the search for a split does not stop until at least one
         valid partition of the node samples is found, even if it requires to
@@ -1003,6 +1085,12 @@ class SampleRandomForestQuantileRegressor(SampleForestQuantileRegressor):
     bootstrap : bool, default=True
         Whether bootstrap samples are used when building trees. If False, the
         whole dataset is used to build each tree.
+
+    oob_score : bool or callable, default=False
+        Whether to use out-of-bag samples to estimate the generalization score.
+        By default, :func:`~sklearn.metrics.r2_score` is used.
+        Provide a callable with signature `metric(y_true, y_pred)` to use a
+        custom metric. Only available if `bootstrap=True`.
 
     n_jobs : int, default=None
         The number of jobs to run in parallel. :meth:`fit`, :meth:`predict`,
@@ -1038,12 +1126,29 @@ class SampleRandomForestQuantileRegressor(SampleForestQuantileRegressor):
     max_samples : int or float, default=None
         If bootstrap is True, the number of samples to draw from X
         to train each base estimator.
+
         - If None (default), then draw `X.shape[0]` samples.
         - If int, then draw `max_samples` samples.
-        - If float, then draw `max_samples * X.shape[0]` samples. Thus,
+        - If float, then draw `max(round(n_samples * max_samples), 1)` samples. Thus,
           `max_samples` should be in the interval `(0.0, 1.0]`.
 
         .. versionadded:: 0.22
+
+    monotonic_cst : array-like of int of shape (n_features), default=None
+        Indicates the monotonicity constraint to enforce on each feature.
+          - 1: monotonically increasing
+          - 0: no constraint
+          - -1: monotonically decreasing
+
+        If monotonic_cst is None, no constraints are applied.
+
+        Monotonicity constraints are not supported for:
+          - multioutput regressions (i.e. when `n_outputs_ > 1`),
+          - regressions trained on data with missing values.
+
+        Read more in the :ref:`User Guide <monotonic_cst_gbdt>`.
+
+        .. versionadded:: 1.4
 
     Attributes
     ----------
@@ -1054,14 +1159,6 @@ class SampleRandomForestQuantileRegressor(SampleForestQuantileRegressor):
         .. versionadded:: 1.2
            `base_estimator_` was renamed to `estimator_`.
 
-    base_estimator_ : DecisionTreeRegressor
-        The child estimator template used to create the collection of fitted
-        sub-estimators.
-
-        .. deprecated:: 1.2
-            `base_estimator_` is deprecated and will be removed in 1.4.
-            Use `estimator_` instead.
-
     estimators_ : list of DecisionTreeRegressor
         The collection of fitted sub-estimators.
 
@@ -1071,6 +1168,7 @@ class SampleRandomForestQuantileRegressor(SampleForestQuantileRegressor):
         The importance of a feature is computed as the (normalized)
         total reduction of the criterion brought by that feature.  It is also
         known as the Gini importance.
+
         Warning: impurity-based feature importances can be misleading for
         high cardinality features (many unique values). See
         :func:`sklearn.inspection.permutation_importance` as an alternative.
@@ -1089,43 +1187,77 @@ class SampleRandomForestQuantileRegressor(SampleForestQuantileRegressor):
     n_outputs_ : int
         The number of outputs when ``fit`` is performed.
 
+    oob_score_ : float
+        Score of the training dataset obtained using an out-of-bag estimate.
+        This attribute exists only when ``oob_score`` is True.
+
+    oob_prediction_ : ndarray of shape (n_samples,) or (n_samples, n_outputs)
+        Prediction computed with out-of-bag estimate on the training set.
+        This attribute exists only when ``oob_score`` is True.
+
+    estimators_samples_ : list of arrays
+        The subset of drawn samples (i.e., the in-bag samples) for each base
+        estimator. Each subset is defined by an array of the indices selected.
+
+        .. versionadded:: 1.4
+
 	References
     ----------
     .. [1] Nicolai Meinshausen, Quantile Regression Forests
         http://www.jmlr.org/papers/volume7/meinshausen06a/meinshausen06a.pdf
     """
-    def __init__(self,
-                 q=None,
-                 n_estimators=100,
-                 *,
-                 criterion='squared_error',
-                 max_depth=None,
-                 min_samples_split=2,
-                 min_samples_leaf=1,
-                 min_weight_fraction_leaf=0.0,
-                 max_features=1.0,
-                 max_leaf_nodes=None,
-                 min_impurity_decrease=0.0,
-                 bootstrap=True,
-                 n_jobs=1,
-                 random_state=None,
-                 verbose=0,
-                 warm_start=False,
-                 ccp_alpha=0.0,
-                 max_samples=None):
-        estimator_params = RandomForestRegressor().estimator_params
+    _parameter_constraints: dict = {
+        **ForestRegressor._parameter_constraints,
+        **DecisionTreeRegressor._parameter_constraints,
+    }
+    _parameter_constraints.pop("splitter")
 
-        super(BaseForestQuantileRegressor, self).__init__(
-            **create_keyword_dict(
-                estimator=DecisionTreeRegressor(),
-                n_estimators=n_estimators,
-                estimator_params=estimator_params,
-                bootstrap=bootstrap,
-                n_jobs=n_jobs,
-                random_state=random_state,
-                verbose=verbose,
-                warm_start=warm_start,
-                max_samples=max_samples)
+    def __init__(
+            self,
+            n_estimators=100,
+            q=None,
+            *,
+            criterion="squared_error",
+            max_depth=None,
+            min_samples_split=2,
+            min_samples_leaf=1,
+            min_weight_fraction_leaf=0.0,
+            max_features=1.0,
+            max_leaf_nodes=None,
+            min_impurity_decrease=0.0,
+            bootstrap=True,
+            oob_score=False,
+            n_jobs=None,
+            random_state=None,
+            verbose=0,
+            warm_start=False,
+            ccp_alpha=0.0,
+            max_samples=None,
+            monotonic_cst=None,
+    ):
+        super().__init__(
+            estimator=DecisionTreeRegressor(),
+            n_estimators=n_estimators,
+            estimator_params=(
+                "criterion",
+                "max_depth",
+                "min_samples_split",
+                "min_samples_leaf",
+                "min_weight_fraction_leaf",
+                "max_features",
+                "max_leaf_nodes",
+                "min_impurity_decrease",
+                "random_state",
+                "ccp_alpha",
+                "monotonic_cst",
+            ),
+            bootstrap=bootstrap,
+            oob_score=oob_score,
+            n_jobs=n_jobs,
+            random_state=random_state,
+            verbose=verbose,
+            warm_start=warm_start,
+            max_samples=max_samples,
         )
 
         self.criterion = criterion
@@ -1137,6 +1269,7 @@ class SampleRandomForestQuantileRegressor(SampleForestQuantileRegressor):
         self.max_leaf_nodes = max_leaf_nodes
         self.min_impurity_decrease = min_impurity_decrease
         self.ccp_alpha = ccp_alpha
+        self.monotonic_cst = monotonic_cst
         self.q = q
 
 
@@ -1219,7 +1352,6 @@ class SampleExtraTreesQuantileRegressor(SampleForestQuantileRegressor):
         - If float, then `max_features` is a fraction and
           `max(1, int(max_features * n_features_in_))` features are considered at each
           split.
-        - If "auto", then `max_features=n_features`.
         - If "sqrt", then `max_features=sqrt(n_features)`.
         - If "log2", then `max_features=log2(n_features)`.
         - If None or 1.0, then `max_features=n_features`.
@@ -1230,10 +1362,6 @@ class SampleExtraTreesQuantileRegressor(SampleForestQuantileRegressor):
 
         .. versionchanged:: 1.1
             The default of `max_features` changed from `"auto"` to 1.0.
-
-        .. deprecated:: 1.1
-            The `"auto"` option was deprecated in 1.1 and will be removed
-            in 1.3.
 
         Note: the search for a split does not stop until at least one
         valid partition of the node samples is found, even if it requires to
@@ -1266,6 +1394,12 @@ class SampleExtraTreesQuantileRegressor(SampleForestQuantileRegressor):
         Whether bootstrap samples are used when building trees. If False, the
         whole dataset is used to build each tree.
 
+    oob_score : bool or callable, default=False
+        Whether to use out-of-bag samples to estimate the generalization score.
+        By default, :func:`~sklearn.metrics.r2_score` is used.
+        Provide a callable with signature `metric(y_true, y_pred)` to use a
+        custom metric. Only available if `bootstrap=True`.
+
     n_jobs : int, default=None
         The number of jobs to run in parallel. :meth:`fit`, :meth:`predict`,
         :meth:`decision_path` and :meth:`apply` are all parallelized over the
@@ -1275,11 +1409,13 @@ class SampleExtraTreesQuantileRegressor(SampleForestQuantileRegressor):
 
     random_state : int, RandomState instance or None, default=None
         Controls 3 sources of randomness:
+
         - the bootstrapping of the samples used when building trees
           (if ``bootstrap=True``)
         - the sampling of the features to consider when looking for the best
           split at each node (if ``max_features < n_features``)
         - the draw of the splits for each of the `max_features`
+
         See :term:`Glossary <random_state>` for details.
 
     verbose : int, default=0
@@ -1310,6 +1446,22 @@ class SampleExtraTreesQuantileRegressor(SampleForestQuantileRegressor):
 
         .. versionadded:: 0.22
 
+    monotonic_cst : array-like of int of shape (n_features), default=None
+        Indicates the monotonicity constraint to enforce on each feature.
+          - 1: monotonically increasing
+          - 0: no constraint
+          - -1: monotonically decreasing
+
+        If monotonic_cst is None, no constraints are applied.
+
+        Monotonicity constraints are not supported for:
+          - multioutput regressions (i.e. when `n_outputs_ > 1`),
+          - regressions trained on data with missing values.
+
+        Read more in the :ref:`User Guide <monotonic_cst_gbdt>`.
+
+        .. versionadded:: 1.4
+
     Attributes
     ----------
     estimator_ : :class:`~sklearn.tree.ExtraTreeRegressor`
@@ -1318,14 +1470,6 @@ class SampleExtraTreesQuantileRegressor(SampleForestQuantileRegressor):
 
         .. versionadded:: 1.2
            `base_estimator_` was renamed to `estimator_`.
-
-    base_estimator_ : ExtraTreeRegressor
-        The child estimator template used to create the collection of fitted
-        sub-estimators.
-
-        .. deprecated:: 1.2
-            `base_estimator_` is deprecated and will be removed in 1.4.
-            Use `estimator_` instead.
 
     estimators_ : list of DecisionTreeRegressor
         The collection of fitted sub-estimators.
@@ -1336,6 +1480,7 @@ class SampleExtraTreesQuantileRegressor(SampleForestQuantileRegressor):
         The importance of a feature is computed as the (normalized)
         total reduction of the criterion brought by that feature.  It is also
         known as the Gini importance.
+
         Warning: impurity-based feature importances can be misleading for
         high cardinality features (many unique values). See
         :func:`sklearn.inspection.permutation_importance` as an alternative.
@@ -1353,39 +1498,73 @@ class SampleExtraTreesQuantileRegressor(SampleForestQuantileRegressor):
 
     n_outputs_ : int
         The number of outputs.
-    """
-    def __init__(self,
-                 n_estimators=100,
-                 q=None,
-                 *,
-                 criterion="squared_error",
-                 max_depth=None,
-                 min_samples_split=2,
-                 min_samples_leaf=1,
-                 min_weight_fraction_leaf=0.0,
-                 max_features=1.0,
-                 max_leaf_nodes=None,
-                 min_impurity_decrease=0.0,
-                 bootstrap=False,
-                 n_jobs=None,
-                 random_state=None,
-                 verbose=0,
-                 warm_start=False,
-                 ccp_alpha=0.0,
-                 max_samples=None):
-        estimator_params = ExtraTreesRegressor().estimator_params
 
+    oob_score_ : float
+        Score of the training dataset obtained using an out-of-bag estimate.
+        This attribute exists only when ``oob_score`` is True.
+
+    oob_prediction_ : ndarray of shape (n_samples,) or (n_samples, n_outputs)
+        Prediction computed with out-of-bag estimate on the training set.
+        This attribute exists only when ``oob_score`` is True.
+
+    estimators_samples_ : list of arrays
+        The subset of drawn samples (i.e., the in-bag samples) for each base
+        estimator. Each subset is defined by an array of the indices selected.
+
+        .. versionadded:: 1.4
+    """
+    _parameter_constraints: dict = {
+        **ForestRegressor._parameter_constraints,
+        **DecisionTreeRegressor._parameter_constraints,
+    }
+    _parameter_constraints.pop("splitter")
+
+    def __init__(
+            self,
+            n_estimators=100,
+            q=None,
+            *,
+            criterion="squared_error",
+            max_depth=None,
+            min_samples_split=2,
+            min_samples_leaf=1,
+            min_weight_fraction_leaf=0.0,
+            max_features=1.0,
+            max_leaf_nodes=None,
+            min_impurity_decrease=0.0,
+            bootstrap=False,
+            oob_score=False,
+            n_jobs=None,
+            random_state=None,
+            verbose=0,
+            warm_start=False,
+            ccp_alpha=0.0,
+            max_samples=None,
+            monotonic_cst=None,
+    ):
         super().__init__(
-            **create_keyword_dict(
-                estimator=ExtraTreeRegressor(),
-                n_estimators=n_estimators,
-                estimator_params=estimator_params,
-                bootstrap=bootstrap,
-                n_jobs=n_jobs,
-                random_state=random_state,
-                verbose=verbose,
-                warm_start=warm_start,
-                max_samples=max_samples)
+            estimator=ExtraTreeRegressor(),
+            n_estimators=n_estimators,
+            estimator_params=(
+                "criterion",
+                "max_depth",
+                "min_samples_split",
+                "min_samples_leaf",
+                "min_weight_fraction_leaf",
+                "max_features",
+                "max_leaf_nodes",
+                "min_impurity_decrease",
+                "random_state",
+                "ccp_alpha",
+                "monotonic_cst",
+            ),
+            bootstrap=bootstrap,
+            oob_score=oob_score,
+            n_jobs=n_jobs,
+            random_state=random_state,
+            verbose=verbose,
+            warm_start=warm_start,
+            max_samples=max_samples,
         )
 
         self.criterion = criterion
@@ -1397,4 +1576,5 @@ class SampleExtraTreesQuantileRegressor(SampleForestQuantileRegressor):
         self.max_leaf_nodes = max_leaf_nodes
         self.min_impurity_decrease = min_impurity_decrease
         self.ccp_alpha = ccp_alpha
+        self.monotonic_cst = monotonic_cst
         self.q = q
