@@ -15,7 +15,7 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Install Python package dependencies
-      run: /opt/python/cp3${{ matrix.python-version }}-cp3${{ matrix.python-version }}/bin/python -m pip install cython wheel setuptools numpy>=1.22.3 pytest twine scikit-learn
+      run: /opt/python/cp3${{ matrix.python-version }}-cp3${{ matrix.python-version }}/bin/python -m pip install cython wheel setuptools numpy>=1.22.3
 
     - name: Build binary wheel
       run: /opt/python/cp3${{ matrix.python-version }}-cp3${{ matrix.python-version }}/bin/python setup.py bdist_wheel
@@ -27,14 +27,15 @@ jobs:
       run: rm dist/*-linux_x86_64.whl
 
     - name: Install locally
-      run: python setup.py build_ext --inplace
+      run: /opt/python/cp3${{ matrix.python-version }}-cp3${{ matrix.python-version }}/bin/python -m pip install . pytest
 
     - name: Run tests
       run: pytest
 
     - name: Test twine
       run: |
-        ls -ln 
+        ls -ln
+        /opt/python/cp3${{ matrix.python-version }}-cp3${{ matrix.python-version }}/bin/python -m pip install twine
         twine check --strict dist/*
 
     - name: Archive dist artifacts
