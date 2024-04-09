@@ -9,13 +9,13 @@ jobs:
     strategy:
       max-parallel: 5
       matrix:
-        python-version: ["8", "9", "10", "11", "12"]
+        python-version: ["9", "10", "11", "12"]
 
     steps:
     - uses: actions/checkout@v2
 
     - name: Install Python package dependencies
-      run: /opt/python/cp3${{ matrix.python-version }}-cp3${{ matrix.python-version }}/bin/python -m pip install cython wheel setuptools numpy>=1.22.3
+      run: /opt/python/cp3${{ matrix.python-version }}-cp3${{ matrix.python-version }}/bin/python -m pip install cython wheel setuptools numpy>=1.22.3 pytest twine
 
     - name: Build binary wheel
       run: /opt/python/cp3${{ matrix.python-version }}-cp3${{ matrix.python-version }}/bin/python setup.py bdist_wheel
@@ -32,12 +32,24 @@ jobs:
         name: dist-linux-3.${{ matrix.python-version }}
         path: dist
 
+    - name: Install locally
+      run: pip install .
+
+    - name: Run tests
+      run: pytest
+
+    - name: Test twine
+      run: |
+        ls -ln 
+        twine check --strict dist/*
+
+
   build-macos:
     runs-on: macos-latest
     strategy:
       max-parallel: 5
       matrix:
-        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
 
     steps:
     - uses: actions/checkout@v2
@@ -49,7 +61,7 @@ jobs:
         architecture: x64
 
     - name: Install Python package dependencies
-      run: pip install cython wheel setuptools numpy>=1.22.3
+      run: pip install cython wheel setuptools numpy>=1.22.3 pytest twine
 
     - name: Build binary wheel
       run: python setup.py bdist_wheel
@@ -60,12 +72,24 @@ jobs:
         name: dist-macos-${{ matrix.python-version }}
         path: dist
 
+    - name: Install locally
+      run: pip install .
+
+    - name: Run tests
+      run: pytest
+
+    - name: Test twine
+      run: |
+        ls -ln 
+        twine check --strict dist/*
+
+
   build-windows:
     runs-on: windows-latest
     strategy:
       max-parallel: 5
       matrix:
-        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
 
     steps:
     - uses: actions/checkout@v2
@@ -83,7 +107,7 @@ jobs:
         architecture: x64
 
     - name: Install Python package dependencies
-      run: pip install cython wheel setuptools numpy>=1.22.3
+      run: pip install cython wheel setuptools numpy>=1.22.3 pytest twine
 
     - name: Build binary wheel
       run: python setup.py bdist_wheel
@@ -93,3 +117,14 @@ jobs:
       with:
         name: dist-windows-${{ matrix.python-version }}
         path: dist
+
+    - name: Install locally
+      run: pip install .
+
+    - name: Run tests
+      run: pytest
+
+    - name: Test twine
+      run: |
+        ls -ln 
+        twine check --strict dist/*

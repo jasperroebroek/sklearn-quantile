@@ -3,9 +3,9 @@ requires = ["setuptools>=68", "wheel", "numpy>=1.22.3", "Cython>=0.29.21"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "sklearn-quantile"
-description = "README.md"
+name = "sklearn_quantile"
 version = "0.0.31"
+description = "README.md"
 license = { file = "LICENSE" }
 authors = [
     { name = "Jasper Roebroek", email = "roebroek.jasper@gmail.com" }
@@ -30,11 +30,8 @@ dependencies = [
 
 [project.optional-dependencies]
 documentation = ["matplotlib", "sphinx", "sphinx_rtd_theme", "numpydoc", "jupyter", "pandas"]
-
 test = ["pytest"]
-
 develop = ["pytest", "twine", "cython"]
-
 all = ["matplotlib", "sphinx", "sphinx_rtd_theme", "numpydoc", "jupyter", "pandas", "pytest", "twine", "cython"]
 
 [tool.pytest.ini_options]

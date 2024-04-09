@@ -81,11 +81,14 @@ jobs:
       with:
         name: dist
 
-    - name: Upload
-      env:
-        TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
-        TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
-      run: |
-        ls -l dist/*
-        pip install twine
-        twine upload dist/*
+    - name: Install dependencies
+      run: pip install twine
+
+    - name: Twine check
+      run: twine check --strict dist/*
+
+    - name: Publish distribution to PyPI
+      uses: pypa/gh-action-pypi-publish@master
+      with:
+        user: __token__
+        password: ${{ secrets.PYPI_API_TOKEN }}

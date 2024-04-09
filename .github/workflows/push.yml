@@ -9,7 +9,6 @@ on:
       - docs/**
       - .github/**
       - .readthedocs.yaml
-      - pyproject.toml
       - .gitignore
 
 jobs:
