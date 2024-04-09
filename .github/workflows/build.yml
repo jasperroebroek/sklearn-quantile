@@ -30,13 +30,13 @@ jobs:
       run: /opt/python/cp3${{ matrix.python-version }}-cp3${{ matrix.python-version }}/bin/python -m pip install . pytest
 
     - name: Run tests
-      run: pytest
+      run: /opt/python/cp3${{ matrix.python-version }}-cp3${{ matrix.python-version }}/bin/python -m pytest
 
     - name: Test twine
       run: |
         ls -ln
         /opt/python/cp3${{ matrix.python-version }}-cp3${{ matrix.python-version }}/bin/python -m pip install twine
-        twine check --strict dist/*
+        /opt/python/cp3${{ matrix.python-version }}-cp3${{ matrix.python-version }}/bin/python -m twine check --strict dist/*
 
     - name: Archive dist artifacts
       uses: actions/upload-artifact@v2
