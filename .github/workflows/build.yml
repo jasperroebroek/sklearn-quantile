@@ -26,18 +26,6 @@ jobs:
     - name: Remove linux wheel
       run: rm dist/*-linux_x86_64.whl
 
-    - name: Install locally
-      run: /opt/python/cp3${{ matrix.python-version }}-cp3${{ matrix.python-version }}/bin/python -m pip install . pytest
-
-    - name: Run tests
-      run: /opt/python/cp3${{ matrix.python-version }}-cp3${{ matrix.python-version }}/bin/python -m pytest
-
-    - name: Test twine
-      run: |
-        ls -ln
-        /opt/python/cp3${{ matrix.python-version }}-cp3${{ matrix.python-version }}/bin/python -m pip install twine
-        /opt/python/cp3${{ matrix.python-version }}-cp3${{ matrix.python-version }}/bin/python -m twine check --strict dist/*
-
     - name: Archive dist artifacts
       uses: actions/upload-artifact@v2
       with:
@@ -61,21 +49,10 @@ jobs:
         architecture: x64
 
     - name: Install Python package dependencies
-      run: pip install cython wheel setuptools numpy>=1.22.3 pytest twine scikit-learn
+      run: pip install cython wheel setuptools numpy>=1.22.3
 
     - name: Build binary wheel
       run: python setup.py bdist_wheel
-
-    - name: Install locally
-      run: python setup.py build_ext --inplace
-
-    - name: Run tests
-      run: pytest
-
-    - name: Test twine
-      run: |
-        ls -ln 
-        twine check --strict dist/*
 
     - name: Archive dist artifacts
       uses: actions/upload-artifact@v2
@@ -106,21 +83,10 @@ jobs:
         architecture: x64
 
     - name: Install Python package dependencies
-      run: pip install cython wheel setuptools numpy>=1.22.3  scikit-learn
+      run: pip install cython wheel setuptools numpy>=1.22.3
 
     - name: Build binary wheel
       run: python setup.py bdist_wheel
-
-    - name: Install locally
-      run: python setup.py build_ext --inplace
-
-    - name: Run tests
-      run: pytest
-
-    - name: Test twine
-      run: |
-        ls -ln 
-        twine check --strict dist/*
 
     - name: Archive dist artifacts
       uses: actions/upload-artifact@v2

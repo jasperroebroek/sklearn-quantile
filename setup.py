@@ -10,7 +10,9 @@ extensions = [
     Extension("sklearn_quantile.ensemble.quantile",
               ["sklearn_quantile/ensemble/quantile.pyx"]),
     Extension("sklearn_quantile.ensemble.maximum",
-              ["sklearn_quantile/ensemble/maximum.pyx"])
+              ["sklearn_quantile/ensemble/maximum.pyx"]),
+    # Extension("sklearn_quantile.utils.WQ",
+    #           ["sklearn_quantile/utils/WQ.pyx"])
 ]
 
 setup(
