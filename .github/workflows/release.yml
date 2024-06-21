@@ -27,7 +27,9 @@ jobs:
   upload_pypi:
     needs: [build, build_sdist]
     runs-on: ubuntu-latest
-    environment: pypi
+    environment:
+      name: pypi
+      url: https://pypi.org/p/sklearn-quantile
     permissions:
       id-token: write
 
@@ -40,3 +42,5 @@ jobs:
           merge-multiple: true
 
       - uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.PYPI_API_TOKEN }}
