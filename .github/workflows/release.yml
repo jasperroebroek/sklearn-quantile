@@ -10,87 +10,37 @@ jobs:
   build:
     uses: ./.github/workflows/build.yml  # use the callable tests job to run tests
 
-  sdist:
-    name: sdist
+  build_sdist:
+    name: Build source distribution
     runs-on: ubuntu-latest
-    
     steps:
-      - uses: actions/checkout@v2
-  
-      - name: Set up Python
-        uses: actions/setup-python@v2
+      - uses: actions/checkout@v4
+
+      - name: Build sdist
+        run: pipx run build --sdist
+
+      - uses: actions/upload-artifact@v4
         with:
-          python-version: 3.12
-  
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install cython wheel setuptools numpy>=1.22.3
-  
-      - name: Create source dist
-        run: python setup.py sdist
+          name: cibw-sdist
+          path: dist/*.tar.gz
 
-      - name: Archive dist
-        uses: actions/upload-artifact@v2
-        with:
-          name: sdist
-          path: dist
-
-  copy:
+  upload_pypi:
+    needs: [build, build_sdist]
     runs-on: ubuntu-latest
-    name: release
-    needs: [build]
-    strategy:
-        max-parallel: 5
-        matrix:
-          python-version: ["3.9", "3.10", "3.11", "3.12"]
-          os: ['windows', 'linux', 'macos']
-
-    steps:
-    - name: Create output folder
-      uses: actions/checkout@v2
-    - run: mkdir dist
-
-    - name: Load sdist
-      uses: actions/download-artifact@v2
-      with:
-        name: sdist
-    - run: mv -v *.tar.gz dist/
-
-    - name: Stage ${{ matrix.os }} ${{ matrix.python-version }}
-      uses: actions/download-artifact@v2
-      with:
-        name: dist-${{ matrix.os }}-${{ matrix.python-version }}
-    - run: mv -v *.whl dist/
-
-    - name: Archive
-      uses: actions/upload-artifact@v2
-      with:
-        name: dist
-        path: ./
-
-  upload:
-    runs-on: ubuntu-latest
-    name: release
-    needs: [copy, sdist]
-    environment:
-      name: pypi
-      url: https://pypi.org/p/sklearn-quantile
+    environment: pypi
     permissions:
       id-token: write
-
+    if: github.event_name == 'release' && github.event.action == 'published'
+    # or, alternatively, upload to PyPI on every tag starting with 'v' (remove on: release above to use this)
+    # if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
     steps:
-    
-    - name: Load
-      uses: actions/download-artifact@v2
-      with:
-        name: dist
+      - uses: actions/download-artifact@v4
+        with:
+          # unpacks all CIBW artifacts into dist/
+          pattern: cibw-*
+          path: dist
+          merge-multiple: true
 
-    - name: Install dependencies
-      run: pip install twine
-
-    - name: Twine check
-      run: twine check --strict dist/*
-
-    - name: Publish distribution to PyPI
-      uses: pypa/gh-action-pypi-publish@release/v1
+      - uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+        # To test: repository-url: https://test.pypi.org/legacy/
