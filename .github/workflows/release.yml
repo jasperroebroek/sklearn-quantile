@@ -43,7 +43,7 @@ jobs:
     strategy:
         max-parallel: 5
         matrix:
-          python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
+          python-version: ["3.9", "3.10", "3.11", "3.12"]
           os: ['windows', 'linux', 'macos']
 
     steps:
@@ -73,7 +73,12 @@ jobs:
     runs-on: ubuntu-latest
     name: release
     needs: [copy, sdist]
-    
+    environment:
+      name: pypi
+      url: https://pypi.org/p/sklearn-quantile
+    permissions:
+      id-token: write
+
     steps:
     
     - name: Load
@@ -88,7 +93,4 @@ jobs:
       run: twine check --strict dist/*
 
     - name: Publish distribution to PyPI
-      uses: pypa/gh-action-pypi-publish@master
-      with:
-        user: __token__
-        password: ${{ secrets.PYPI_API_TOKEN }}
+      uses: pypa/gh-action-pypi-publish@release/v1
