@@ -10,7 +10,6 @@ build
 *__pycache__
 dist
 
-requirements.txt
 speed.py
 
 todo
