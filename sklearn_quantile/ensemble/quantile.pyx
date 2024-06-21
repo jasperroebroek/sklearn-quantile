@@ -20,11 +20,10 @@ from abc import ABCMeta, abstractmethod
 
 import numpy as np
 import threading
-from joblib import Parallel
 
 from sklearn.ensemble._forest import ForestRegressor, _accumulate_prediction, _generate_sample_indices
 from sklearn.ensemble._base import _partition_estimators
-from sklearn.utils.fixes import delayed
+from sklearn.utils.parallel import delayed, Parallel
 from sklearn.tree import DecisionTreeRegressor, ExtraTreeRegressor
 from sklearn.utils import check_array, check_X_y, check_random_state
 from sklearn.utils.validation import check_is_fitted

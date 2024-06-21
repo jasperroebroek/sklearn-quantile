@@ -23,7 +23,7 @@ classifiers = [
 
 dependencies = [
     "numpy>=1.19.0",
-    "scikit-learn>=1.4",
+    "scikit-learn>=1.5",
     "joblib",
     "packaging"
 ]

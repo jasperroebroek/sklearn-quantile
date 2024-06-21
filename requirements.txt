@@ -3,7 +3,7 @@ wheel
 numpy<2
 Cython>=0.29.21
 twine
-scikit-learn>=1
+scikit-learn>=1.5
 joblib
 packaging
 pytest

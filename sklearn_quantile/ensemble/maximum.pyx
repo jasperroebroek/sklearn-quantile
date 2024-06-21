@@ -12,12 +12,10 @@ same parameters as the regular RandomForestRegressor
 """
 import threading
 
-from joblib import Parallel
-
 import numpy as np
 cimport numpy as cnp
 from sklearn.tree import DecisionTreeRegressor
-from sklearn.utils.parallel import delayed
+from sklearn.utils.parallel import delayed, Parallel
 from sklearn.utils.validation import check_is_fitted
 from sklearn.ensemble._base import _partition_estimators
 from sklearn.ensemble._forest import ForestRegressor
