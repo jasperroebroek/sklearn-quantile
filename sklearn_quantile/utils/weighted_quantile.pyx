@@ -5,243 +5,193 @@
 
 cimport numpy as cnp
 import numpy as np
-from numpy.lib.function_base import _quantile_is_valid
 from libc.math cimport isnan
-from libc.stdlib cimport malloc, free, calloc
-
-
-cdef extern from "stdlib.h":
-    void qsort(void *base, int nmemb, int size,
-               int(*compar)(const void *, const void *)) nogil
-
-
-cdef struct IndexedElement:
-    size_t index
-    float value
+from libc.stdlib cimport free, realloc, calloc, qsort
+from numpy.lib.function_base import _quantile_is_valid
 
 
 cdef int _compare(const void *a, const void *b) noexcept nogil:
-    cdef float v
-    if isnan((<IndexedElement*> a).value) and isnan((<IndexedElement*> b).value): 
+    cdef:
+        float v, a_val = (<WeightedValue *> a).value, b_val = (<WeightedValue *> b).value
+
+    if isnan(a_val) and isnan(b_val):
         return 0
-    if isnan((<IndexedElement*> a).value): 
+    if isnan(a_val):
         return 1
-    if isnan((<IndexedElement*> b).value): 
+    if isnan(b_val):
         return -1
-    
-    v = (<IndexedElement*> a).value - (<IndexedElement*> b).value
-    if v < 0: 
+
+    v = a_val - b_val
+    if v < 0:
         return -1
-    if v >= 0: 
+    if v >= 0:
         return 1
 
 
-cdef long[:] argsort(float[:] data) nogil:
-    """source: https://github.com/jcrudy/cython-argsort/blob/master/cyargsort/argsort.pyx"""
+cdef class WeightedQuantileCalculator:
     cdef:
-        unsigned long i
-        size_t n = data.shape[0]
-        long[:] order
+        WeightedValue* data
+        size_t size
+        size_t capacity
+        Interpolation interpolation
+        float total_weights
+        bint sorted
 
-    with gil:
-        order = np.empty(n, dtype=np.int_)
+    def __cinit__(self, size_t initial_capacity = 1, Interpolation interpolation = linear):
+        self.capacity = initial_capacity
+        self.data = <WeightedValue *> calloc(initial_capacity, sizeof(WeightedValue))
+        self.interpolation = interpolation
+        self.size = 0
+        self.total_weights = 0
+        self.sorted = False
 
-    # Allocate index tracking array.
-    cdef IndexedElement *order_struct = <IndexedElement *> malloc(n * sizeof(IndexedElement))
-    if order_struct == NULL:
-        raise MemoryError()
+        if self.data == NULL:
+            raise MemoryError
 
-    # Copy data into index tracking array.
-    for i in range(n):
-        order_struct[i].index = i
-        order_struct[i].value = data[i]
+    def __dealloc__(self):
+        if self.data is not NULL:
+            free(self.data)
 
-    # Sort index tracking array.
-    qsort(<void *> order_struct, n, sizeof(IndexedElement), _compare)
+    cdef void reset(self) noexcept nogil:
+        self.size = 0
+        self.total_weights = 0
+        self.sorted = False
 
-    # Copy indices from index tracking array to output array.
-    for i in range(n):
-        order[i] = order_struct[i].index
+    cdef void push_data_entry(self, float a, float weight) noexcept nogil:
+        """This function assumes enough space is available in self.data"""
+        if isnan(a) or isnan(weight):
+            return
+        if weight == 0:
+            return
 
-    # Free index tracking array.
-    free(order_struct)
+        self.data[self.size].value = a
+        self.data[self.size].weight = weight
+        self.total_weights += weight
+        self.size += 1
 
-    return order
+    cdef int increase_capacity(self, size_t n_samples) except -1 nogil:
+        cdef:
+            WeightedValue *tmp_ptr
 
+        if n_samples > self.capacity:
+            while n_samples > self.capacity:
+                self.capacity *= 2
+            tmp_ptr = <WeightedValue *> realloc(self.data, self.capacity * sizeof(WeightedValue))
+            if tmp_ptr == NULL:
+                raise MemoryError
+            self.data = tmp_ptr
+        return 0
 
-cdef int _searchsorted1D(float[:] A, float x) nogil:
-    """
-    source: https://github.com/gesellkammer/numpyx/blob/master/numpyx.pyx
-    """
-    cdef:
-        int imid, imin = 0, imax = A.shape[0]
+    cdef void sort(self) noexcept nogil:
+        qsort(<void *> self.data, self.size, sizeof(WeightedValue), _compare)
+        self.sorted = True
 
-    while imin < imax:
-        imid = imin + ((imax - imin) / 2)
-        if A[imid] < x:
-            imin = imid + 1
-        else:
-            imax = imid
-    return imin
+    cdef int insert_data(self, float[:] a, float[:] weights) except -1 nogil:
+        cdef:
+            size_t i, n_samples = a.shape[0]
 
+        self.reset()
+        self.increase_capacity(n_samples)
 
-cdef void _weighted_quantile_presorted_1D(float[:] a,
-                                          float[:] q,
-                                          float[:] weights,
-                                          float[:] quantiles,
-                                          Interpolation interpolation) nogil:
-    """
-    Weighted quantile (1D) on presorted data. 
-    Note: the weights data will be changed
-    """
-    cdef:
-        unsigned long i
-        size_t q_idx, n_samples = a.shape[0], n_q = q.shape[0]
-        float weights_total, weights_cum, frac
+        for i in range(n_samples):
+            self.push_data_entry(a[i], weights[i])
+        return 0
 
-    weights_total = 0
-    for i in range(n_samples):
-        weights_total += weights[i]
+    cdef void weighted_quantile(self, float[:] q, float[:] output) noexcept nogil:
+        cdef:
+            float previous_val, previous_weight, weights_cum = 0,
+            float frac
+            size_t i, iq, q_idx = 0, n_q = q.shape[0]
 
-    weights_cum = weights[0]
-    weights[0] = 0.5 * weights[0] / weights_total
-    for i in range(1, n_samples):
-        weights_cum += weights[i]
-        weights[i] = (weights_cum - 0.5 * weights[i]) / weights_total
+        if n_q == 0:
+            return
 
-    for i in range(n_q):
-        q_idx = _searchsorted1D(weights, q[i]) - 1
+        if not self.sorted:
+            self.sort()
 
-        if q_idx == -1:
-            quantiles[i] = a[0]
-        elif q_idx == n_samples - 1:
-            quantiles[i] = a[n_samples - 1]
-        else:
-            quantiles[i] = a[q_idx]
-            if interpolation == linear:
-                frac = (q[i] - weights[q_idx]) / (weights[q_idx + 1] - weights[q_idx])
-            elif interpolation == lower:
-                frac = 0
-            elif interpolation == higher:
-                frac = 1
-            elif interpolation == midpoint:
-                frac = 0.5
-            elif interpolation == nearest:
-                frac = (q[i] - weights[q_idx]) / (weights[q_idx + 1] - weights[q_idx])
-                if frac < 0.5:
+        previous_val = self.data[0].value
+        previous_weight = self.data[0].weight
+
+        for i in range(self.size):
+            if (q_idx + 1) > n_q:
+                break
+
+            weights_cum += self.data[i].weight / self.total_weights
+
+            for iq in range(q_idx, n_q):
+                if weights_cum < q[iq]:
+                    continue
+
+                if self.interpolation == linear:
+                    frac = (q[iq] - previous_weight) / (weights_cum - previous_weight)
+                elif self.interpolation == lower:
                     frac = 0
-                else:
+                elif self.interpolation == higher:
                     frac = 1
+                elif self.interpolation == midpoint:
+                    frac = 0.5
+                elif self.interpolation == nearest:
+                    frac = (q[iq] - previous_weight) / (weights_cum - previous_weight)
+                    if frac < 0.5:
+                        frac = 0
+                    else:
+                        frac = 1
 
-            quantiles[i] = a[q_idx] + frac * (a[q_idx + 1] - a[q_idx])
+                output[iq] = previous_val + frac * (self.data[i].value - previous_val)
+                q_idx += 1
+
+            previous_val = self.data[i].value
+            previous_weight = weights_cum
+
+    def py_weighted_quantile(self, a, weights, q):
+        a = np.asarray(a).flatten().astype(np.float32)
+        weights = np.asarray(weights).flatten().astype(np.float32)
+        q = np.asarray(q).flatten().astype(np.float32)
+
+        if not np.allclose(q, np.sort(q)):
+            raise IndexError("Quantiles need to be sorted")
+
+        if not _quantile_is_valid(q):
+            raise ValueError(f"Not all quantiles are valid {q=}")
+
+        if a.size != weights.size:
+            raise IndexError(f"Values and weights need to be of same length: {a.shape=} {weights.shape=}")
+
+        output = np.empty(q.size, dtype=np.float32)
+
+        self.insert_data(a, weights)
+        self.weighted_quantile(q, output)
+
+        return output
 
 
-cdef void _weighted_quantile_unchecked_1D(float[:] a,
-                                         float[:] q,
-                                         float[:] weights,
-                                         float[:] quantiles,
-                                         Interpolation interpolation) nogil:
-    """
-    Weighted quantile (1D)
-    Note: the data is not guaranteed to not be changed within this function
-    """
+def get_c_interpolation(interpolation: str):
+    return {
+        'linear': linear,
+        'lower': lower,
+        'higher': higher,
+        'midpoint': midpoint,
+        'nearest': nearest,
+    }.get(interpolation)
+
+
+cdef void _weighted_quantile(float[:, :] a,
+                             float[:, :] weights,
+                             float[:] q,
+                             Interpolation interpolation,
+                             float[:, :] output):
     cdef:
-        long[:] sort_idx
-        size_t i, count_samples = 0, n_samples = a.shape[0]
-        float[:] a_processed, weights_processed
+        size_t i
+        size_t n = a.shape[0]
+        size_t n_samples = a.shape[1]
+        WeightedQuantileCalculator wqc
 
-    for i in range(n_samples):
-        if isnan(a[i]):
-            continue
-        elif weights[i] == 0:
-            continue
-        else:
-            a[count_samples] = a[i]
-            weights[count_samples] = weights[i]
-            count_samples += 1
+    wqc = WeightedQuantileCalculator(n_samples)
 
-    sort_idx = argsort(a[:count_samples])
-
-    with gil:
-        a_processed = np.empty(count_samples, dtype=np.float32)
-        weights_processed = np.empty(count_samples, dtype=np.float32)
-
-    for i in range(count_samples):
-        a_processed[i] = a[sort_idx[i]]
-        weights_processed[i] = weights[sort_idx[i]]
-
-    _weighted_quantile_presorted_1D(a_processed[:count_samples], q, weights_processed[:count_samples],
-                                    quantiles, interpolation)
-
-
-def _weighted_quantile_unchecked(a, q, weights, axis, 
-                                 overwrite_input=False, 
-                                 interpolation='linear'):
-    """
-    Numpy implementation
-    Axis should not be none and a should have more than 1 dimension
-    This implementation is faster than doing it manually in cython (as the
-    looping currently happens with the GIL)
-
-    Return shape (q, chosen axis, other axes)
-    """
-    a = np.asarray(a, dtype=np.float32)
-    weights = np.asarray(weights, dtype=np.float32)
-    q = np.asarray(q, dtype=np.float32)
-
-    a = np.moveaxis(a, axis, 0)
-    weights = np.moveaxis(weights, axis, 0)
-
-    q = np.expand_dims(q, axis=list(np.arange(1, a.ndim+1)))
-
-    zeros = weights == 0
-    a[zeros] = np.nan
-    zeros_count = zeros.sum(axis=0, keepdims=True)
-
-    idx_sorted = np.argsort(a, axis=0)
-    a_sorted = np.take_along_axis(a, idx_sorted, axis=0)
-    weights_sorted = np.take_along_axis(weights, idx_sorted, axis=0)
-
-    weights_cum = np.cumsum(weights_sorted, axis=0)
-    weights_total = np.expand_dims(np.take(weights_cum, -1, axis=0), axis=0)
-
-    weights_norm = (weights_cum - 0.5 * weights_sorted) / weights_total
-    indices = np.sum(weights_norm < q, axis=1, keepdims=True) - 1
-
-    idx_low = (indices == -1)
-    high = a.shape[0] - zeros_count - 1
-    idx_high = (indices == high)
-
-    indices = np.clip(indices, 0, high - 1)
-
-    left_weight = np.take_along_axis(weights_norm[np.newaxis, ...], indices, axis=1)
-    right_weight = np.take_along_axis(weights_norm[np.newaxis, ...], indices + 1, axis=1)
-    left_value = np.take_along_axis(a_sorted[np.newaxis, ...], indices, axis=1)
-    right_value = np.take_along_axis(a_sorted[np.newaxis, ...], indices + 1, axis=1)
-
-    if interpolation == 'linear':
-        fraction = (q - left_weight) / (right_weight - left_weight)
-    elif interpolation == 'lower':
-        fraction = 0
-    elif interpolation == 'higher':
-        fraction = 1
-    elif interpolation == 'midpoint':
-        fraction = 0.5
-    elif interpolation == 'nearest':
-        fraction = (np.abs(left_weight - q) > np.abs(right_weight - q))
-    else:
-        raise ValueError("interpolation should be one of: {'linear', 'lower', 'higher', 'midpoint', 'nearest'}")
-
-    quantiles = left_value + fraction * (right_value - left_value)
-
-    if idx_low.sum() > 0:
-        quantiles[idx_low] = np.take(a_sorted, 0, axis=0).flatten()
-    if idx_high.sum() > 0:
-        quantiles[idx_high] = np.take_along_axis(a_sorted, high, axis=0).flatten()
-
-    quantiles = np.moveaxis(quantiles, 1, axis + 1)
-
-    return quantiles
+    with nogil:
+        for i in range(n):
+            wqc.insert_data(a[i], weights[i])
+            wqc.weighted_quantile(q, output[:, i])
 
 
 def weighted_quantile(a, q, weights=None, axis=None, overwrite_input=False, interpolation='linear',
@@ -258,7 +208,7 @@ def weighted_quantile(a, q, weights=None, axis=None, overwrite_input=False, inte
         0 and 1 inclusive.
     weights: array-like, optional
         Weights corresponding to a.
-    axis : {int, None}, optional
+    axis : int, optional
         Axis along which the quantiles are computed. The default is to compute
         the quantile(s) along a flattened version of the array.
     overwrite_input : bool, optional
@@ -296,67 +246,53 @@ def weighted_quantile(a, q, weights=None, axis=None, overwrite_input=False, inte
     ----------
     1. https://en.wikipedia.org/wiki/Percentile#The_Weighted_Percentile_method
     """
-    q = np.atleast_1d(q)
+    if weights is None:
+        return np.quantile(a, q, axis=axis, keepdims=keepdims, overwrite_input=overwrite_input,
+                           interpolation=interpolation)
+
+    q = np.asarray(q, dtype=np.float32).ravel()
+
     if not _quantile_is_valid(q):
         raise ValueError("Quantiles must be in the range [0, 1]")
 
-    if q.ndim > 2:
-        raise ValueError("q must be a scalar or 1D")
+    if a.shape != weights.shape:
+        raise IndexError("the data and weights need to be of the same shape")
+    if isinstance(axis, (tuple, list)):
+        raise NotImplementedError("Several axes are currently not supported.")
 
-    if weights is None:
-        quantiles = np.quantile(a, q, axis=axis, keepdims=True, overwrite_input=overwrite_input,
-                                interpolation=interpolation)
+    if axis is None or a.ndim == 1:
+        wqc = WeightedQuantileCalculator(a.size)
+        quantiles = wqc.py_weighted_quantile(a, weights, q)
+
+        if keepdims:
+            quantiles = quantiles.reshape(q.size, *([1] * a.ndim))
+
     else:
-        a = np.asarray(a, dtype=np.float32)
-        weights = np.asarray(weights, dtype=np.float32)
+        n_samples = a.shape[axis]
 
-        if not overwrite_input:
-            a = a.copy()
-            weights = weights.copy()
+        a_t = np.moveaxis(a, axis, -1)
+        a_flat = a_t.reshape(-1, n_samples)
 
-        if a.shape != weights.shape:
-            raise IndexError("the data and weights need to be of the same shape")
+        weights_flat = np.moveaxis(a, axis, -1).reshape(-1, n_samples)
 
-        q = q.astype(np.float32)
+        quantile_output_shape = (q.size,) + a_flat.shape[:-1]
+        quantiles = np.empty(quantile_output_shape, dtype=np.float32)
 
-        if interpolation == 'linear':
-            c_interpolation = linear
-        elif interpolation == 'lower':
-            c_interpolation = lower
-        elif interpolation == 'higher':
-            c_interpolation = higher
-        elif interpolation == 'midpoint':
-            c_interpolation = midpoint
-        elif interpolation == 'nearest':
-            c_interpolation = nearest
-        else:
-            raise ValueError("interpolation should be one of: {'linear', 'lower', 'higher', 'midpoint', 'nearest'}")
+        _weighted_quantile(
+            a_flat.astype(np.float32),
+            weights_flat.astype(np.float32),
+            q,
+            get_c_interpolation(interpolation),
+            quantiles
+        )
 
-        if isinstance(axis, (tuple, list)):
-            raise NotImplementedError("Several axes are currently not supported.")
+        a_shape = list(a.shape)
+        a_shape[axis] = 1
 
-        elif axis is not None and a.ndim > 1:
-            quantiles = _weighted_quantile_unchecked(a, q, weights, axis, interpolation=interpolation)
+        quantiles = quantiles.reshape(q.size, *a_shape)
 
-        else:
-            ndim = a.ndim
-            a = a.ravel()
-            weights = weights.ravel()
-            quantiles = np.empty(q.size, dtype=np.float32)
-            _weighted_quantile_unchecked_1D(a, q, weights, quantiles, c_interpolation)
-
-            if keepdims:
-                quantiles = quantiles.reshape((-1,) + (1,) * ndim)
-
-            if q.size == 1 and keepdims:
-                return quantiles[0]
-            elif q.size == 1 and not keepdims:
-                return quantiles.item()
-            else:
-                return quantiles
-
-    if not keepdims:
-        quantiles = np.take(quantiles, 0, axis=axis + 1)
+        if not keepdims:
+            quantiles = np.take(quantiles, 0, axis=axis + 1)
 
     if q.size == 1:
         quantiles = quantiles[0]
