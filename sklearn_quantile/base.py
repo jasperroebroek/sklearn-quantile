@@ -21,6 +21,9 @@ class QuantileRegressorMixin:
         if not _quantile_is_valid(q):
             raise ValueError("Quantiles must be in the range [0, 1]")
 
+        if not np.all(np.diff(q) >= 0):
+            raise ValueError("Quantiles need to be sorted")
+
         return q
 
     def score(self, X, y):

@@ -72,4 +72,4 @@ def test_quantile_values(q):
     m = KNeighborsQuantileRegressor(n_neighbors=5, q=q, weights='distance')
     m.fit(X, y)
 
-    assert not np.isclose(m.predict([[6]])[0], np.quantile(y, q))
+    assert not np.isclose(m.predict([[6]]), np.quantile(y, q))

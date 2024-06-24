@@ -247,6 +247,9 @@ def weighted_quantile(a, q, weights=None, axis=None, overwrite_input=False, inte
     if not _quantile_is_valid(q):
         raise ValueError("Quantiles must be in the range [0, 1]")
 
+    if not np.all(np.diff(q) >= 0):
+        raise ValueError("Quantiles need to be sorted")
+
     if a.shape != weights.shape:
         raise IndexError("the data and weights need to be of the same shape")
     if isinstance(axis, (tuple, list)):

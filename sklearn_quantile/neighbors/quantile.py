@@ -193,4 +193,7 @@ class KNeighborsQuantileRegressor(KNeighborsRegressor, QuantileRegressorMixin):
         if self._y.ndim == 1:
             y_pred = y_pred[..., 0]
 
+        if q.size == 1:
+            y_pred = y_pred[0]
+
         return y_pred
