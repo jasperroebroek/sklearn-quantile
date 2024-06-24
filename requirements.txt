@@ -1,6 +1,6 @@
 setuptools>=68
 wheel
-numpy<2
+numpy>=2
 Cython>=0.29.21
 twine
 scikit-learn>=1.5

@@ -7,7 +7,7 @@ cimport numpy as cnp
 import numpy as np
 from libc.math cimport isnan
 from libc.stdlib cimport free, realloc, calloc, qsort
-from numpy.lib.function_base import _quantile_is_valid
+from numpy.lib._function_base_impl import _quantile_is_valid
 
 cdef int _compare(const void *a, const void *b) noexcept nogil:
     cdef:

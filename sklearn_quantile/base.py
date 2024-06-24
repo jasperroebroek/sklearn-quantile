@@ -1,5 +1,5 @@
 import numpy as np
-from numpy.lib.function_base import _quantile_is_valid
+from numpy.lib._function_base_impl import _quantile_is_valid
 from sklearn.metrics import mean_pinball_loss
 
 
