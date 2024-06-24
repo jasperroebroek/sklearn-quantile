@@ -14,7 +14,7 @@ from libc.math cimport isnan
 
 cimport numpy as cnp
 
-from sklearn_quantile.utils.weighted_quantile cimport _weighted_quantile_presorted_1D, Interpolation
+from sklearn_quantile.utils.weighted_quantile cimport Interpolation, WeightedQuantileCalculator
 
 from abc import ABCMeta, abstractmethod
 
@@ -53,8 +53,6 @@ cpdef void _quantile_forest_predict(SSIZE_t[:, ::1] X_leaves,
     quantiles : output array (n_q, n_test_samples, n_outputs)
     start, stop : indices to break up computation across threads (used in range)
     """
-    # todo; remove option for having more than one output variable?
-
     cdef:
         size_t n_estimators = X_leaves.shape[0]
         size_t n_outputs = y_train.shape[1]
@@ -62,36 +60,30 @@ cpdef void _quantile_forest_predict(SSIZE_t[:, ::1] X_leaves,
         size_t n_samples = y_train.shape[0]
         size_t n_test_samples = X_leaves.shape[1]
 
-        long i, j, e, o, count_samples
+        long i, j, e, o, i_q, count_samples
         float curr_weight
-        bint sorted = y_train.shape[1] == 1
 
         float[::1] x_weights = np.empty(n_samples, dtype=np.float32)
         float[:, ::1] x_a = np.empty((n_samples, n_outputs), dtype=np.float32)
 
+        WeightedQuantileCalculator wqc = WeightedQuantileCalculator(interpolation=Interpolation.linear,
+                                                                    initial_capacity=n_samples)
+
+    if n_outputs != 1:
+        raise NotImplemented("Multi-output currently not supported")
+
     with nogil:
         for i in range(start, stop):
-            count_samples = 0
+            wqc.reset()
             for j in range(n_samples):
                 curr_weight = 0
                 for e in range(n_estimators):
                     if X_leaves[e, i] == y_train_leaves[e, j]:
                         curr_weight = curr_weight + y_weights[e, j]
                 if curr_weight > 0:
-                    x_weights[count_samples] = curr_weight
-                    x_a[count_samples] = y_train[j]
-                    count_samples = count_samples + 1
-            if sorted:
-                _weighted_quantile_presorted_1D(x_a[:count_samples, 0],
-                                                q, x_weights[:count_samples],
-                                                quantiles[:, i, 0], Interpolation.linear)
-            else:
-                with gil:
-                    raise NotImplemented("Multiple features are currently not supported")
-                # for o in range(n_outputs):
-                #     _weighted_quantile_unchecked_1D(x_a[:count_samples, o], q, x_weights[:count_samples],
-                #                                     quantiles[:, i, o], Interpolation.linear)
-
+                    wqc.push_data_entry(y_train[j, 0], curr_weight)
+            wqc.sorted = True
+            wqc.weighted_quantile(q, quantiles[:, i, 0])
 
 cdef void _weighted_random_sample(SSIZE_t[::1] leaves,
                                   float[::1] values,

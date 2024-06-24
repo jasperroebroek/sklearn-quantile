@@ -153,7 +153,8 @@ class RandomForestMaximumRegressor(BaseForestQuantileRegressor):
     def fit(self, X, y, sample_weight=None):
         super(RandomForestMaximumRegressor, self).fit(X, y, sample_weight)
 
-        print("Sampling maximum per tree")
+        if self.verbose:
+            print("Sampling maximum per tree")
 
         n_jobs, _, _ = _partition_estimators(self.n_estimators, self.n_jobs)
         Parallel(n_jobs=n_jobs, verbose=self.verbose, require="sharedmem")(

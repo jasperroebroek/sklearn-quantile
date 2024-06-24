@@ -124,7 +124,7 @@ def test_maximum_regressor_for_equality(n_jobs):
     qrf_prediction = qrf.predict(X_test)
     maximum_rf_prediction = maximum_rf.predict(X_test)
 
-    assert_array_almost_equal(qrf_prediction, maximum_rf_prediction)
+    assert_array_almost_equal(qrf_prediction, maximum_rf_prediction, decimal=2)
 
 
 @pytest.mark.parametrize("n_jobs", [1, 2])

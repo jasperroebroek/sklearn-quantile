@@ -9,7 +9,6 @@ from libc.math cimport isnan
 from libc.stdlib cimport free, realloc, calloc, qsort
 from numpy.lib.function_base import _quantile_is_valid
 
-
 cdef int _compare(const void *a, const void *b) noexcept nogil:
     cdef:
         float v, a_val = (<WeightedValue *> a).value, b_val = (<WeightedValue *> b).value
@@ -29,14 +28,6 @@ cdef int _compare(const void *a, const void *b) noexcept nogil:
 
 
 cdef class WeightedQuantileCalculator:
-    cdef:
-        WeightedValue* data
-        size_t size
-        size_t capacity
-        Interpolation interpolation
-        float total_weights
-        bint sorted
-
     def __cinit__(self, size_t initial_capacity = 1, Interpolation interpolation = linear):
         self.capacity = initial_capacity
         self.data = <WeightedValue *> calloc(initial_capacity, sizeof(WeightedValue))
@@ -95,6 +86,7 @@ cdef class WeightedQuantileCalculator:
 
         for i in range(n_samples):
             self.push_data_entry(a[i], weights[i])
+
         return 0
 
     cdef void weighted_quantile(self, float[:] q, float[:] output) noexcept nogil:
@@ -119,7 +111,7 @@ cdef class WeightedQuantileCalculator:
             weights_cum += self.data[i].weight / self.total_weights
 
             for iq in range(q_idx, n_q):
-                if weights_cum < q[iq]:
+                if weights_cum < (q[iq] - 1E-6):
                     continue
 
                 if self.interpolation == linear:
