@@ -6,5 +6,5 @@ sphinx_rtd_theme
 numpydoc
 jupyter
 pandas
-sklearn-quantile
+# sklearn-quantile
 numpy>=2
