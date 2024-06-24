@@ -1,10 +1,6 @@
-numpydoc
-jupyter
+pandas
 matplotlib
+jupyter
+numpydoc
 sphinx
 sphinx_rtd_theme
-numpydoc
-jupyter
-pandas
-# sklearn-quantile
-numpy>=2

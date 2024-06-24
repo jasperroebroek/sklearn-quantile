@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sklearn_quantile"
-version = "0.0.32"
+version = "0.1.0"
 description = "README.md"
 license = { file = "LICENSE" }
 authors = [
