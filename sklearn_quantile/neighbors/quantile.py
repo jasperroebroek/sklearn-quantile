@@ -130,18 +130,19 @@ class KNeighborsQuantileRegressor(KNeighborsRegressor, QuantileRegressorMixin):
     https://en.wikipedia.org/wiki/K-nearest_neighbors_algorithm
 
     """
+
     def __init__(
-            self,
-            n_neighbors=5,
-            q=None,
-            *,
-            weights="uniform",
-            algorithm="auto",
-            leaf_size=30,
-            p=2,
-            metric="minkowski",
-            metric_params=None,
-            n_jobs=None,
+        self,
+        n_neighbors=5,
+        q=None,
+        *,
+        weights="uniform",
+        algorithm="auto",
+        leaf_size=30,
+        p=2,
+        metric="minkowski",
+        metric_params=None,
+        n_jobs=None,
     ):
         super().__init__(
             n_neighbors=n_neighbors,
@@ -151,7 +152,7 @@ class KNeighborsQuantileRegressor(KNeighborsRegressor, QuantileRegressorMixin):
             p=p,
             metric_params=metric_params,
             n_jobs=n_jobs,
-            weights=weights
+            weights=weights,
         )
         self.q = q
 
@@ -167,13 +168,13 @@ class KNeighborsQuantileRegressor(KNeighborsRegressor, QuantileRegressorMixin):
 
         Returns
         -------
-        y : ndarray of shape (n_queries,), (n_quantiles, n_queries),  (n_queries, n_outputs) or
+        y : ndarray of shape (n_queries), (n_quantiles, n_queries), (n_queries, n_outputs) or
             (n_quantiles, n_queries, n_outputs), dtype=float
             Target values. Shape depends on the number of requested quantiles and outputs, with
             the simplest case returning a 1d array corresponding to the number of queries.
         """
         q = self.validate_quantiles()
-        X = self._validate_data(X, accept_sparse='csr', reset=False)
+        X = self._validate_data(X, accept_sparse="csr", reset=False)
 
         neigh_dist, neigh_ind = self.kneighbors(X)
 
@@ -188,12 +189,11 @@ class KNeighborsQuantileRegressor(KNeighborsRegressor, QuantileRegressorMixin):
             weights = np.broadcast_to(weights[:, :, np.newaxis], a.shape)
 
         # this falls back on np.quantile if weights is None
-        y_pred = weighted_quantile(a, q, weights, axis=1)
+        y_pred = weighted_quantile(
+            a=a, q=q, weights=weights, axis=1, interpolation="linear"
+        )
 
         if self._y.ndim == 1:
             y_pred = y_pred[..., 0]
-
-        if q.size == 1:
-            y_pred = y_pred[0]
 
         return y_pred

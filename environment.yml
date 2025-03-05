@@ -1,0 +1,11 @@
+name: sklearn-quantile
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - cython>=3
+  - pytest
+  - scipy
+  - joblib
+  - numpy>=2
+  - scikit-learn>=1.5

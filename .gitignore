@@ -10,7 +10,7 @@ build
 *__pycache__
 dist
 
-speed.py
+sklearn_quantile/utils/py_weighted_quantile.py
 
 todo
 .vscode

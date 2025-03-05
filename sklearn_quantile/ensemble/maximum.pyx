@@ -7,8 +7,8 @@
 
 """
 Module providing the special case for quantile regression: predicting the maximum.
-It only has a single implementation called RandomForestMaxRegression, which has the
-same parameters as the regular RandomForestRegressor
+It only has a single implementation called RandomForestMaximumRegressor, which has the
+same parameters as the regular RandomForestRegressor from scikit-learn
 """
 import threading
 
@@ -23,7 +23,7 @@ from sklearn.ensemble._forest import ForestRegressor
 from sklearn_quantile.ensemble.quantile import BaseForestQuantileRegressor
 
 
-ctypedef cnp.intp_t SSIZE_t              # Type for indices and counters
+ctypedef cnp.intp_t SSIZE_t  # Type for indices and counters
 
 
 __all__ = ["RandomForestMaximumRegressor"]
@@ -174,7 +174,7 @@ class RandomForestMaximumRegressor(BaseForestQuantileRegressor):
         # Assign chunk of trees to jobs
         n_jobs, _, _ = _partition_estimators(self.n_estimators, self.n_jobs)
 
-        y_hat = np.zeros(X.shape[0], dtype=np.float32)
+        y_hat = np.full(X.shape[0], dtype=np.float32, fill_value=-np.inf)
 
         # Parallel loop
         lock = threading.Lock()

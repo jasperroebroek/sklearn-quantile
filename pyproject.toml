@@ -1,42 +1,64 @@
 [build-system]
-requires = ["setuptools>=68", "wheel", "numpy>=2", "Cython>=0.29.21"]
-build-backend = "setuptools.build_meta"
+requires = ['setuptools>=68', 'wheel', 'numpy>=2', 'Cython>=3.0.10']
+build-backend = 'setuptools.build_meta'
 
 [project]
-name = "sklearn_quantile"
-version = "0.1.0"
-description = "README.md"
-license = { file = "LICENSE" }
+name = 'sklearn_quantile'
+version = '0.1.1'
+description = ''
+license = { file = 'LICENSE' }
 authors = [
-    { name = "Jasper Roebroek", email = "roebroek.jasper@gmail.com" }
+    { name = 'Jasper Roebroek', email = 'roebroek.jasper@gmail.com' }
 ]
-readme = "README.md"
+readme = 'README.md'
 
 classifiers = [
-    "Development Status :: 2 - Pre-Alpha",
-    "Intended Audience :: Developers",
-    "Natural Language :: English",
-    "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
+    'Development Status :: 2 - Pre-Alpha',
+    'Intended Audience :: Developers',
+    'Natural Language :: English',
+    'Programming Language :: Python :: 3',
+    'Programming Language :: Python :: 3.9',
+    'Programming Language :: Python :: 3.10',
+    'Programming Language :: Python :: 3.11',
 ]
 
 dependencies = [
-    "numpy>=2",
-    "scikit-learn>=1.5",
-    "joblib",
-    "packaging"
+    'numpy>=2',
+    'scikit-learn>=1.5',
+    'joblib',
 ]
+requires-python = '>=3.9'
 
 [project.optional-dependencies]
-documentation = ["matplotlib", "sphinx", "sphinx_rtd_theme", "numpydoc", "jupyter", "pandas"]
-test = ["pytest"]
-develop = ["pytest", "twine", "cython"]
-all = ["matplotlib", "sphinx", "sphinx_rtd_theme", "numpydoc", "jupyter", "pandas", "pytest", "twine", "cython"]
+documentation = [
+    'matplotlib',
+    'sphinx',
+    'sphinx_rtd_theme',
+    'numpydoc',
+    'jupyter',
+    'pandas'
+]
+test = ['pytest']
+develop = [
+    'pytest',
+    'twine',
+    'cython'
+]
+all = [
+    'matplotlib',
+    'sphinx',
+    'sphinx_rtd_theme',
+    'numpydoc',
+    'jupyter',
+    'pandas',
+    'pytest',
+    'twine',
+    'cython'
+]
 
 [tool.pytest.ini_options]
-testpaths = ["tests"]
+testpaths = ['tests']
 
 [project.urls]
-repository = "https://github.com/jasperroebroek/sklearn-quantile"
-documentation = "https://sklearn-quantile.readthedocs.io/en/latest/index.html"
+repository = 'https://github.com/jasperroebroek/sklearn-quantile'
+documentation = 'https://sklearn-quantile.readthedocs.io/en/latest/index.html'

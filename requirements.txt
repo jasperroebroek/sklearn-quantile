@@ -1,9 +1,8 @@
 setuptools>=68
 wheel
 numpy>=2
-Cython>=0.29.21
+Cython>=3.0.10
 twine
 scikit-learn>=1.5
 joblib
-packaging
 pytest

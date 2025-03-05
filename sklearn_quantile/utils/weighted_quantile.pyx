@@ -114,7 +114,9 @@ cdef class WeightedQuantileCalculator:
                 if weights_cum < (q[iq] - 1E-6):
                     continue
 
-                if self.interpolation == linear:
+                if self.size == 1:
+                    frac = 0
+                elif self.interpolation == linear:
                     frac = (q[iq] - previous_weight) / (weights_cum - previous_weight)
                 elif self.interpolation == lower:
                     frac = 0
@@ -136,9 +138,13 @@ cdef class WeightedQuantileCalculator:
             previous_weight = weights_cum
 
     def py_weighted_quantile(self, a, weights, q):
-        a = np.asarray(a).flatten().astype(np.float32)
-        weights = np.asarray(weights).flatten().astype(np.float32)
-        q = np.asarray(q).flatten().astype(np.float32)
+        a = np.asarray(a, dtype=np.float32).flatten()
+        q = np.asarray(q, dtype=np.float32).flatten()
+
+        if weights is None:
+            weights = np.ones_like(a, dtype=np.float32)
+        else:
+            weights = np.asarray(weights, dtype=np.float32).flatten()
 
         if not np.allclose(q, np.sort(q)):
             raise IndexError("Quantiles need to be sorted")
@@ -239,8 +245,7 @@ def weighted_quantile(a, q, weights=None, axis=None, overwrite_input=False, inte
     1. https://en.wikipedia.org/wiki/Percentile#The_Weighted_Percentile_method
     """
     if weights is None:
-        return np.quantile(a, q, axis=axis, keepdims=keepdims, overwrite_input=overwrite_input,
-                           interpolation=interpolation)
+        weights = np.ones_like(a)
 
     q = np.asarray(q, dtype=np.float32).ravel()
 
@@ -265,10 +270,8 @@ def weighted_quantile(a, q, weights=None, axis=None, overwrite_input=False, inte
     else:
         n_samples = a.shape[axis]
 
-        a_t = np.moveaxis(a, axis, -1)
-        a_flat = a_t.reshape(-1, n_samples)
-
-        weights_flat = np.moveaxis(a, axis, -1).reshape(-1, n_samples)
+        a_flat = np.moveaxis(a, axis, -1).reshape(-1, n_samples)
+        weights_flat = np.moveaxis(weights, axis, -1).reshape(-1, n_samples)
 
         quantile_output_shape = (q.size,) + a_flat.shape[:-1]
         quantiles = np.empty(quantile_output_shape, dtype=np.float32)
