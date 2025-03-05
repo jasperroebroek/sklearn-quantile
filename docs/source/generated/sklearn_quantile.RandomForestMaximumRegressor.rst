@@ -17,10 +17,13 @@
       ~RandomForestMaximumRegressor.apply
       ~RandomForestMaximumRegressor.decision_path
       ~RandomForestMaximumRegressor.fit
+      ~RandomForestMaximumRegressor.get_metadata_routing
       ~RandomForestMaximumRegressor.get_params
       ~RandomForestMaximumRegressor.predict
       ~RandomForestMaximumRegressor.score
+      ~RandomForestMaximumRegressor.set_fit_request
       ~RandomForestMaximumRegressor.set_params
+      ~RandomForestMaximumRegressor.set_score_request
       ~RandomForestMaximumRegressor.validate_quantiles
    
    
@@ -31,7 +34,7 @@
 
    .. autosummary::
    
+      ~RandomForestMaximumRegressor.estimators_samples_
       ~RandomForestMaximumRegressor.feature_importances_
-      ~RandomForestMaximumRegressor.n_features_
    
    

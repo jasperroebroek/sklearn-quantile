@@ -4,7 +4,7 @@ Installation
 Required dependencies
 ---------------------
 
-- `scikit-learn >=1.0 <https://scikit-learn.org/stable/>`__
+- `scikit-learn >=1.5 <https://scikit-learn.org/stable/>`__
 
 Instructions
 ------------

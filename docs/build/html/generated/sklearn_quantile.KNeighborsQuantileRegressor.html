@@ -1,23 +1,25 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../">
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>sklearn_quantile.KNeighborsQuantileRegressor &mdash; sklearn_quantile 0.0.1 documentation</title>
-      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-  <!--[if lt IE 9]>
-    <script src="../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+  <title>sklearn_quantile.KNeighborsQuantileRegressor &mdash; sklearn_quantile 0.1.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
   
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/underscore.js"></script>
-        <script src="../_static/doctools.js"></script>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=a58bc63e"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="prev" title="sklearn_quantile.RandomForestMaximumRegressor" href="sklearn_quantile.RandomForestMaximumRegressor.html" /> 
+    <link rel="prev" title="sklearn_quantile.SampleExtraTreesQuantileRegressor" href="sklearn_quantile.SampleExtraTreesQuantileRegressor.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -25,11 +27,15 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../index.html" class="icon icon-home"> sklearn_quantile
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            sklearn_quantile
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -46,6 +52,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/example_usage.html">Example usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../notebooks/example_qrf.html">Prediction Intervals for Quantile Regression Forests</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
@@ -53,10 +60,12 @@
 <li class="toctree-l1"><a class="reference internal" href="../whats_new.html">What’s new</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../api.html">API reference</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="../api.html#models">Models</a><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="sklearn_quantile.RandomForestQuantileRegressor.html">sklearn_quantile.RandomForestQuantileRegressor</a></li>
-<li class="toctree-l3"><a class="reference internal" href="sklearn_quantile.ExtraTreesQuantileRegressor.html">sklearn_quantile.ExtraTreesQuantileRegressor</a></li>
-<li class="toctree-l3"><a class="reference internal" href="sklearn_quantile.RandomForestMaximumRegressor.html">sklearn_quantile.RandomForestMaximumRegressor</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">sklearn_quantile.KNeighborsQuantileRegressor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api.html#random-forest-quantile-regression">Random Forest Quantile Regression</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api.html#extra-trees-quantile-regression">Extra Trees Quantile Regression</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="../api.html#k-nearest-neighbours-quantile-regression">K-Nearest Neighbours Quantile Regression</a><ul class="current">
+<li class="toctree-l4 current"><a class="current reference internal" href="#">sklearn_quantile.KNeighborsQuantileRegressor</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -76,9 +85,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="../api.html">API reference</a> &raquo;</li>
-      <li>sklearn_quantile.KNeighborsQuantileRegressor</li>
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../api.html">API reference</a></li>
+      <li class="breadcrumb-item active">sklearn_quantile.KNeighborsQuantileRegressor</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/generated/sklearn_quantile.KNeighborsQuantileRegressor.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -88,20 +97,20 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <div class="section" id="sklearn-quantile-kneighborsquantileregressor">
-<h1>sklearn_quantile.KNeighborsQuantileRegressor<a class="headerlink" href="#sklearn-quantile-kneighborsquantileregressor" title="Permalink to this headline"></a></h1>
+  <section id="sklearn-quantile-kneighborsquantileregressor">
+<h1>sklearn_quantile.KNeighborsQuantileRegressor<a class="headerlink" href="#sklearn-quantile-kneighborsquantileregressor" title="Link to this heading"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="sklearn_quantile.KNeighborsQuantileRegressor">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sklearn_quantile.</span></span><span class="sig-name descname"><span class="pre">KNeighborsQuantileRegressor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_neighbors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'uniform'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">algorithm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'auto'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">leaf_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metric</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'minkowski'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metric_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sklearn_quantile.KNeighborsQuantileRegressor" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sklearn_quantile.</span></span><span class="sig-name descname"><span class="pre">KNeighborsQuantileRegressor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_neighbors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'uniform'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">algorithm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'auto'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">leaf_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metric</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'minkowski'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metric_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sklearn_quantile.KNeighborsQuantileRegressor" title="Link to this definition"></a></dt>
 <dd><p>Quantile regression based on k-nearest neighbors.</p>
 <p>The target is predicted by local interpolation of the targets
 associated of the nearest neighbors in the training set.</p>
-<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/neighbors.html#regression" title="(in scikit-learn v1.0)"><span class="xref std std-ref">User Guide</span></a>.</p>
+<p>Read more in the <a class="reference external" href="https://scikit-learn.org/stable/modules/neighbors.html#regression" title="(in scikit-learn v1.6)"><span class="xref std std-ref">User Guide</span></a>.</p>
 <div class="versionadded">
-<p><span class="versionmodified added">New in version 0.9.</span></p>
+<p><span class="versionmodified added">Added in version 0.9.</span></p>
 </div>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>n_neighbors</strong> (<em>int</em><em>, </em><em>default=5</em>) – Number of neighbors to use by default for <code class="xref py py-meth docutils literal notranslate"><span class="pre">kneighbors()</span></code> queries.</p></li>
 <li><p><strong>q</strong> (<em>float</em><em> or </em><em>array-like</em><em>, </em><em>optional</em>) – Quantiles used for prediction (values ranging from 0 to 1)</p></li>
@@ -141,12 +150,12 @@ minkowski, and with p=2 is equivalent to the standard Euclidean
 metric. See the documentation of <code class="xref py py-class docutils literal notranslate"><span class="pre">DistanceMetric</span></code> for a
 list of available metrics.
 If metric is “precomputed”, X is assumed to be a distance matrix and
-must be square during fit. X may be a <a class="reference external" href="https://scikit-learn.org/stable/glossary.html#term-sparse-graph" title="(in scikit-learn v1.0)"><span class="xref std std-term">sparse graph</span></a>,
+must be square during fit. X may be a <a class="reference external" href="https://scikit-learn.org/stable/glossary.html#term-sparse-graph" title="(in scikit-learn v1.6)"><span class="xref std std-term">sparse graph</span></a>,
 in which case only “nonzero” elements may be considered neighbors.</p></li>
 <li><p><strong>metric_params</strong> (<em>dict</em><em>, </em><em>default=None</em>) – Additional keyword arguments for the metric function.</p></li>
 <li><p><strong>n_jobs</strong> (<em>int</em><em>, </em><em>default=None</em>) – The number of parallel jobs to run for neighbors search.
 <code class="docutils literal notranslate"><span class="pre">None</span></code> means 1 unless in a <code class="xref py py-obj docutils literal notranslate"><span class="pre">joblib.parallel_backend</span></code> context.
-<code class="docutils literal notranslate"><span class="pre">-1</span></code> means using all processors. See <a class="reference external" href="https://scikit-learn.org/stable/glossary.html#term-n_jobs" title="(in scikit-learn v1.0)"><span class="xref std std-term">Glossary</span></a>
+<code class="docutils literal notranslate"><span class="pre">-1</span></code> means using all processors. See <a class="reference external" href="https://scikit-learn.org/stable/glossary.html#term-n_jobs" title="(in scikit-learn v1.6)"><span class="xref std std-term">Glossary</span></a>
 for more details.
 Doesn’t affect <code class="xref py py-meth docutils literal notranslate"><span class="pre">fit()</span></code> method.</p></li>
 </ul>
@@ -154,12 +163,12 @@ Doesn’t affect <code class="xref py py-meth docutils literal notranslate"><spa
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="sklearn_quantile.KNeighborsQuantileRegressor.effective_metric_">
-<span class="sig-name descname"><span class="pre">effective_metric_</span></span><a class="headerlink" href="#sklearn_quantile.KNeighborsQuantileRegressor.effective_metric_" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">effective_metric_</span></span><a class="headerlink" href="#sklearn_quantile.KNeighborsQuantileRegressor.effective_metric_" title="Link to this definition"></a></dt>
 <dd><p>The distance metric to use. It will be same as the <cite>metric</cite> parameter
 or a synonym of it, e.g. ‘euclidean’ if the <cite>metric</cite> parameter set to
 ‘minkowski’ and <cite>p</cite> parameter set to 2.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>str or callable</p>
 </dd>
 </dl>
@@ -167,13 +176,13 @@ or a synonym of it, e.g. ‘euclidean’ if the <cite>metric</cite> parameter se
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="sklearn_quantile.KNeighborsQuantileRegressor.effective_metric_params_">
-<span class="sig-name descname"><span class="pre">effective_metric_params_</span></span><a class="headerlink" href="#sklearn_quantile.KNeighborsQuantileRegressor.effective_metric_params_" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">effective_metric_params_</span></span><a class="headerlink" href="#sklearn_quantile.KNeighborsQuantileRegressor.effective_metric_params_" title="Link to this definition"></a></dt>
 <dd><p>Additional keyword arguments for the metric function. For most metrics
 will be same with <cite>metric_params</cite> parameter, but may also contain the
 <cite>p</cite> parameter value if the <cite>effective_metric_</cite> attribute is set to
 ‘minkowski’.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>dict</p>
 </dd>
 </dl>
@@ -181,13 +190,13 @@ will be same with <cite>metric_params</cite> parameter, but may also contain the
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="sklearn_quantile.KNeighborsQuantileRegressor.n_features_in_">
-<span class="sig-name descname"><span class="pre">n_features_in_</span></span><a class="headerlink" href="#sklearn_quantile.KNeighborsQuantileRegressor.n_features_in_" title="Permalink to this definition"></a></dt>
-<dd><p>Number of features seen during <a class="reference external" href="https://scikit-learn.org/stable/glossary.html#term-fit" title="(in scikit-learn v1.0)"><span class="xref std std-term">fit</span></a>.</p>
+<span class="sig-name descname"><span class="pre">n_features_in_</span></span><a class="headerlink" href="#sklearn_quantile.KNeighborsQuantileRegressor.n_features_in_" title="Link to this definition"></a></dt>
+<dd><p>Number of features seen during <a class="reference external" href="https://scikit-learn.org/stable/glossary.html#term-fit" title="(in scikit-learn v1.6)"><span class="xref std std-term">fit</span></a>.</p>
 <div class="versionadded">
-<p><span class="versionmodified added">New in version 0.24.</span></p>
+<p><span class="versionmodified added">Added in version 0.24.</span></p>
 </div>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>int</p>
 </dd>
 </dl>
@@ -195,14 +204,14 @@ will be same with <cite>metric_params</cite> parameter, but may also contain the
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="sklearn_quantile.KNeighborsQuantileRegressor.feature_names_in_">
-<span class="sig-name descname"><span class="pre">feature_names_in_</span></span><a class="headerlink" href="#sklearn_quantile.KNeighborsQuantileRegressor.feature_names_in_" title="Permalink to this definition"></a></dt>
-<dd><p>Names of features seen during <a class="reference external" href="https://scikit-learn.org/stable/glossary.html#term-fit" title="(in scikit-learn v1.0)"><span class="xref std std-term">fit</span></a>. Defined only when <cite>X</cite>
+<span class="sig-name descname"><span class="pre">feature_names_in_</span></span><a class="headerlink" href="#sklearn_quantile.KNeighborsQuantileRegressor.feature_names_in_" title="Link to this definition"></a></dt>
+<dd><p>Names of features seen during <a class="reference external" href="https://scikit-learn.org/stable/glossary.html#term-fit" title="(in scikit-learn v1.6)"><span class="xref std std-term">fit</span></a>. Defined only when <cite>X</cite>
 has feature names that are all strings.</p>
 <div class="versionadded">
-<p><span class="versionmodified added">New in version 1.0.</span></p>
+<p><span class="versionmodified added">Added in version 1.0.</span></p>
 </div>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>ndarray of shape (<cite>n_features_in_</cite>,)</p>
 </dd>
 </dl>
@@ -210,10 +219,10 @@ has feature names that are all strings.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="sklearn_quantile.KNeighborsQuantileRegressor.n_samples_fit_">
-<span class="sig-name descname"><span class="pre">n_samples_fit_</span></span><a class="headerlink" href="#sklearn_quantile.KNeighborsQuantileRegressor.n_samples_fit_" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">n_samples_fit_</span></span><a class="headerlink" href="#sklearn_quantile.KNeighborsQuantileRegressor.n_samples_fit_" title="Link to this definition"></a></dt>
 <dd><p>Number of samples in the fitted data.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>int</p>
 </dd>
 </dl>
@@ -233,7 +242,7 @@ has feature names that are all strings.</p>
 </dl>
 </div>
 <p class="rubric">Notes</p>
-<p>See <a class="reference external" href="https://scikit-learn.org/stable/modules/neighbors.html#neighbors" title="(in scikit-learn v1.0)"><span class="xref std std-ref">Nearest Neighbors</span></a> in the online documentation
+<p>See <a class="reference external" href="https://scikit-learn.org/stable/modules/neighbors.html#neighbors" title="(in scikit-learn v1.6)"><span class="xref std std-ref">Nearest Neighbors</span></a> in the online documentation
 for a discussion of the choice of <code class="docutils literal notranslate"><span class="pre">algorithm</span></code> and <code class="docutils literal notranslate"><span class="pre">leaf_size</span></code>.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
@@ -245,15 +254,11 @@ training data.</p>
 <p><a class="reference external" href="https://en.wikipedia.org/wiki/K-nearest_neighbors_algorithm">https://en.wikipedia.org/wiki/K-nearest_neighbors_algorithm</a></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="sklearn_quantile.KNeighborsQuantileRegressor.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_neighbors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'uniform'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">algorithm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'auto'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">leaf_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metric</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'minkowski'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metric_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sklearn_quantile.KNeighborsQuantileRegressor.__init__" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_neighbors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'uniform'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">algorithm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'auto'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">leaf_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metric</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'minkowski'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metric_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sklearn_quantile.KNeighborsQuantileRegressor.__init__" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <p class="rubric">Methods</p>
-<table class="longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
+<table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#sklearn_quantile.KNeighborsQuantileRegressor.__init__" title="sklearn_quantile.KNeighborsQuantileRegressor.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>([n_neighbors, q, weights, ...])</p></td>
 <td><p></p></td>
@@ -261,23 +266,29 @@ training data.</p>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code>(X, y)</p></td>
 <td><p>Fit the k-nearest neighbors regressor from the training dataset.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params</span></code>([deep])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_metadata_routing</span></code>()</p></td>
+<td><p>Get metadata routing of this object.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params</span></code>([deep])</p></td>
 <td><p>Get parameters for this estimator.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">kneighbors</span></code>([X, n_neighbors, return_distance])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">kneighbors</span></code>([X, n_neighbors, return_distance])</p></td>
 <td><p>Find the K-neighbors of a point.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">kneighbors_graph</span></code>([X, n_neighbors, mode])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">kneighbors_graph</span></code>([X, n_neighbors, mode])</p></td>
 <td><p>Compute the (weighted) graph of k-Neighbors for points in X.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict</span></code>(X)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict</span></code>(X)</p></td>
 <td><p>Predict conditional quantile of the nearest neighbours.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">score</span></code>(X, y[, sample_weight])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">score</span></code>(X, y[, sample_weight])</p></td>
 <td><p>Return the coefficient of determination of the prediction.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code>(**params)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code>(**params)</p></td>
 <td><p>Set the parameters of this estimator.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_score_request</span></code>(*[, sample_weight])</p></td>
+<td><p>Request metadata passed to the <code class="docutils literal notranslate"><span class="pre">score</span></code> method.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_quantiles</span></code>()</p></td>
 <td><p>Validate the quantiles inserted in the quantile regressor</p></td>
@@ -286,13 +297,13 @@ training data.</p>
 </table>
 </dd></dl>
 
-</div>
+</section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="sklearn_quantile.RandomForestMaximumRegressor.html" class="btn btn-neutral float-left" title="sklearn_quantile.RandomForestMaximumRegressor" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="sklearn_quantile.SampleExtraTreesQuantileRegressor.html" class="btn btn-neutral float-left" title="sklearn_quantile.SampleExtraTreesQuantileRegressor" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
 
   <hr/>

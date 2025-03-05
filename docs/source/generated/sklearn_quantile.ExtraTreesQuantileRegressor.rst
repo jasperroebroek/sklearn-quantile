@@ -17,10 +17,13 @@
       ~ExtraTreesQuantileRegressor.apply
       ~ExtraTreesQuantileRegressor.decision_path
       ~ExtraTreesQuantileRegressor.fit
+      ~ExtraTreesQuantileRegressor.get_metadata_routing
       ~ExtraTreesQuantileRegressor.get_params
       ~ExtraTreesQuantileRegressor.predict
       ~ExtraTreesQuantileRegressor.score
+      ~ExtraTreesQuantileRegressor.set_fit_request
       ~ExtraTreesQuantileRegressor.set_params
+      ~ExtraTreesQuantileRegressor.set_score_request
       ~ExtraTreesQuantileRegressor.validate_quantiles
    
    
@@ -31,7 +34,7 @@
 
    .. autosummary::
    
+      ~ExtraTreesQuantileRegressor.estimators_samples_
       ~ExtraTreesQuantileRegressor.feature_importances_
-      ~ExtraTreesQuantileRegressor.n_features_
    
    

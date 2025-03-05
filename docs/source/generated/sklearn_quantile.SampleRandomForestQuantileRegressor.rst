@@ -17,10 +17,13 @@
       ~SampleRandomForestQuantileRegressor.apply
       ~SampleRandomForestQuantileRegressor.decision_path
       ~SampleRandomForestQuantileRegressor.fit
+      ~SampleRandomForestQuantileRegressor.get_metadata_routing
       ~SampleRandomForestQuantileRegressor.get_params
       ~SampleRandomForestQuantileRegressor.predict
       ~SampleRandomForestQuantileRegressor.score
+      ~SampleRandomForestQuantileRegressor.set_fit_request
       ~SampleRandomForestQuantileRegressor.set_params
+      ~SampleRandomForestQuantileRegressor.set_score_request
       ~SampleRandomForestQuantileRegressor.validate_quantiles
    
    
@@ -31,7 +34,7 @@
 
    .. autosummary::
    
+      ~SampleRandomForestQuantileRegressor.estimators_samples_
       ~SampleRandomForestQuantileRegressor.feature_importances_
-      ~SampleRandomForestQuantileRegressor.n_features_
    
    

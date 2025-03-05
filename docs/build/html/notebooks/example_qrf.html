@@ -1,24 +1,26 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../">
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Prediction Intervals for Quantile Regression Forests &mdash; sklearn_quantile 0.0.1 documentation</title>
-      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-  <!--[if lt IE 9]>
-    <script src="../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+  <title>Prediction Intervals for Quantile Regression Forests &mdash; sklearn_quantile 0.1.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
   
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/underscore.js"></script>
-        <script src="../_static/doctools.js"></script>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=a58bc63e"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="What’s new" href="../whats_new.html" />
-    <link rel="prev" title="Quantile Regression Forest" href="../methods.html" /> 
+    <link rel="prev" title="Example usage" href="example_usage.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -26,11 +28,15 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../index.html" class="icon icon-home"> sklearn_quantile
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            sklearn_quantile
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -47,6 +53,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="example_usage.html">Example usage</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Prediction Intervals for Quantile Regression Forests</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#fitting-non-linear-quantile-and-least-squares-regressors">Fitting non-linear quantile and least squares regressors</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#analysis-of-the-error-metrics">Analysis of the error metrics</a></li>
@@ -74,8 +81,8 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>Prediction Intervals for Quantile Regression Forests</li>
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Prediction Intervals for Quantile Regression Forests</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/notebooks/example_qrf.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -91,20 +98,20 @@
 <p>This tutorial was generated from an IPython notebook that can be
 downloaded <a class="reference external" href="../../../source/notebooks/example_qrf.ipynb">here</a>.</p>
 </div>
-<div class="section" id="prediction-intervals-for-quantile-regression-forests">
-<span id="example-qrf"></span><h1>Prediction Intervals for Quantile Regression Forests<a class="headerlink" href="#prediction-intervals-for-quantile-regression-forests" title="Permalink to this headline"></a></h1>
+<section id="prediction-intervals-for-quantile-regression-forests">
+<span id="example-qrf"></span><h1>Prediction Intervals for Quantile Regression Forests<a class="headerlink" href="#prediction-intervals-for-quantile-regression-forests" title="Link to this heading"></a></h1>
 <p>This example shows how quantile regression can be used to create
 prediction intervals. Note that this is an adapted example from Gradient
 Boosting regression with quantile loss. The procedure and conclusions
 remain almost exactly the same.</p>
 <p>Generate some data for a synthetic regression problem by applying the
 function f to uniformly sampled random inputs.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.model_selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">train_test_split</span>
 </pre></div>
 </div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;The function to predict.&quot;&quot;&quot;</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">f</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The function to predict.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">x</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
 
 
@@ -131,13 +138,13 @@ large outliers is likely but it is impossible to observe small outliers.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="section" id="fitting-non-linear-quantile-and-least-squares-regressors">
-<h2>Fitting non-linear quantile and least squares regressors<a class="headerlink" href="#fitting-non-linear-quantile-and-least-squares-regressors" title="Permalink to this headline"></a></h2>
+<section id="fitting-non-linear-quantile-and-least-squares-regressors">
+<h2>Fitting non-linear quantile and least squares regressors<a class="headerlink" href="#fitting-non-linear-quantile-and-least-squares-regressors" title="Link to this heading"></a></h2>
 <p>Fit a Random Forest Regressor and Quantile Regression Forest based on
 the same parameterisation.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sklearn_quantile</span> <span class="kn">import</span> <span class="n">RandomForestQuantileRegressor</span>
-<span class="kn">from</span> <span class="nn">sklearn.ensemble</span> <span class="kn">import</span> <span class="n">RandomForestRegressor</span>
-<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">mean_pinball_loss</span><span class="p">,</span> <span class="n">mean_squared_error</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sklearn_quantile</span><span class="w"> </span><span class="kn">import</span> <span class="n">RandomForestQuantileRegressor</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.ensemble</span><span class="w"> </span><span class="kn">import</span> <span class="n">RandomForestRegressor</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">mean_pinball_loss</span><span class="p">,</span> <span class="n">mean_squared_error</span>
 </pre></div>
 </div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">common_params</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
@@ -173,7 +180,7 @@ the same parameterisation.</p>
 <p>Plot the true conditional mean function f, the prediction of the
 conditional mean (least squares loss), the conditional median and the
 conditional 90% interval (from 5th to 95th conditional percentiles).</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
 
 <span class="n">y_pred</span> <span class="o">=</span> <span class="n">rf</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">xx</span><span class="p">)</span>
 <span class="n">y_lower</span> <span class="o">=</span> <span class="n">predictions</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -205,14 +212,14 @@ conditional 90% interval (from 5th to 95th conditional percentiles).</p>
 median is on average below the mean as the noise is skewed towards high
 values (large outliers). The median estimate also seems to be smoother
 because of its natural robustness to outliers.</p>
-</div>
-<div class="section" id="analysis-of-the-error-metrics">
-<h2>Analysis of the error metrics<a class="headerlink" href="#analysis-of-the-error-metrics" title="Permalink to this headline"></a></h2>
+</section>
+<section id="analysis-of-the-error-metrics">
+<h2>Analysis of the error metrics<a class="headerlink" href="#analysis-of-the-error-metrics" title="Link to this heading"></a></h2>
 <p>Measure the models with :func:<code class="docutils literal notranslate"><span class="pre">sklearn.mean_squared_error</span></code> and
 :func:<code class="docutils literal notranslate"><span class="pre">sklearn.mean_pinball_loss</span></code> metrics on the training dataset.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 
-<span class="k">def</span> <span class="nf">highlight_min</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">highlight_min</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
     <span class="n">x_min</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
     <span class="k">return</span> <span class="p">[</span><span class="s1">&#39;font-weight: bold&#39;</span> <span class="k">if</span> <span class="n">v</span> <span class="o">==</span> <span class="n">x_min</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
             <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">x</span><span class="p">]</span>
@@ -375,14 +382,14 @@ large outliers which can cause significant overfitting. This can be seen
 on the right hand side of the previous plot. The conditional median
 estimator is biased (underestimation for this asymetric noise) but is
 also naturally robust to outliers and overfits less.</p>
-</div>
-<div class="section" id="calibration-of-the-confidence-interval">
-<h2>Calibration of the confidence interval<a class="headerlink" href="#calibration-of-the-confidence-interval" title="Permalink to this headline"></a></h2>
+</section>
+<section id="calibration-of-the-confidence-interval">
+<h2>Calibration of the confidence interval<a class="headerlink" href="#calibration-of-the-confidence-interval" title="Link to this heading"></a></h2>
 <p>We can also evaluate the ability of the two extreme quantile estimators at
 producing a well-calibrated conditational 90%-confidence interval.</p>
 <p>To do this we can compute the fraction of observations that fall between the
 predictions:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">coverage_fraction</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">y_low</span><span class="p">,</span> <span class="n">y_high</span><span class="p">):</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">coverage_fraction</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">y_low</span><span class="p">,</span> <span class="n">y_high</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">y</span> <span class="o">&gt;=</span> <span class="n">y_low</span><span class="p">,</span> <span class="n">y</span> <span class="o">&lt;=</span> <span class="n">y_high</span><span class="p">))</span>
 
 
@@ -405,9 +412,9 @@ coverage value for a 90% confidence interval.</p>
 </pre></div>
 </div>
 <p>On the test set the coverage is even closer to the expected 90%.</p>
-</div>
-<div class="section" id="tuning-the-hyper-parameters-of-the-quantile-regressors">
-<h2>Tuning the hyper-parameters of the quantile regressors<a class="headerlink" href="#tuning-the-hyper-parameters-of-the-quantile-regressors" title="Permalink to this headline"></a></h2>
+</section>
+<section id="tuning-the-hyper-parameters-of-the-quantile-regressors">
+<h2>Tuning the hyper-parameters of the quantile regressors<a class="headerlink" href="#tuning-the-hyper-parameters-of-the-quantile-regressors" title="Link to this heading"></a></h2>
 <p>In the plot above, we observed that the 5th percentile predictions seems
 to underfit and could not adapt to sinusoidal shape of the signal.</p>
 <p>The hyper-parameters of the model were approximately hand-tuned for the
@@ -416,9 +423,9 @@ are suitable for the 5th percentile regressor.</p>
 <p>To confirm this hypothesis, we tune the hyper-parameters of each
 quantile separately with the pinball loss with alpha being the quantile
 of the regressor.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">RandomizedSearchCV</span>
-<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">make_scorer</span>
-<span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.model_selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">RandomizedSearchCV</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_scorer</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pprint</span><span class="w"> </span><span class="kn">import</span> <span class="n">pprint</span>
 
 
 <span class="n">param_grid</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
@@ -458,7 +465,7 @@ are more expressive and less likely to underfit.</p>
 We need to redefine the <code class="docutils literal notranslate"><span class="pre">scoring</span></code> metric used to select the best
 model, along with adjusting the quantile parameter of the inner gradient
 boosting estimator itself:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sklearn.base</span> <span class="kn">import</span> <span class="n">clone</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">clone</span>
 
 <span class="n">q</span> <span class="o">=</span> <span class="mf">0.95</span>
 <span class="n">neg_mean_pinball_loss_95p_scorer</span> <span class="o">=</span> <span class="n">make_scorer</span><span class="p">(</span>
@@ -529,14 +536,14 @@ estimators:</p>
 </div>
 <p>The calibrated pinball loss on the test set is exactly the expected 90
 percent coverage.</p>
-</div>
-</div>
+</section>
+</section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="../methods.html" class="btn btn-neutral float-left" title="Quantile Regression Forest" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="example_usage.html" class="btn btn-neutral float-left" title="Example usage" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="../whats_new.html" class="btn btn-neutral float-right" title="What’s new" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
